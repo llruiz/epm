@@ -3,207 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EPM | Estruturador de Monografias</title>
-    <link rel="stylesheet" href="style.css">
+    <title>EPM — Monografia | Estruturador Acadêmico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --success: #10b981;
+            --border: #1e293b;
+            --text: #f1f5f9;
+            --text-dim: #64748b;
+            --error: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+        /* Modal de Acesso */
+        #auth-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .auth-card {
+            background: var(--card); border: 1px solid var(--border); padding: 3rem;
+            border-radius: 2rem; width: 90%; max-width: 420px; text-align: center;
+        }
+
+        /* Dashboard */
+        .main-content { max-width: 1000px; margin: 0 auto; padding: 4rem 1.5rem; transition: filter 0.5s; }
+        .locked { filter: blur(30px); pointer-events: none; }
+
+        header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 4rem; }
+        h1 { font-size: 3rem; font-weight: 900; letter-spacing: -3px; color: #fff; }
+        h1 span { color: var(--primary); }
+
+        .card-step { background: var(--card); border: 1px solid var(--border); padding: 2.5rem; border-radius: 2rem; margin-bottom: 2.5rem; }
+        .step-label { font-size: 0.65rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.3rem; text-transform: uppercase; margin-bottom: 1.5rem; display: block; }
+
+        /* Boxes de Seleção */
+        .grid-selection { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .selectable-card {
+            background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); padding: 1.8rem;
+            border-radius: 1.5rem; cursor: pointer; transition: 0.3s;
+        }
+        .selectable-card:hover { border-color: var(--primary); background: rgba(56, 189, 248, 0.05); transform: translateY(-3px); }
+        .card-selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); box-shadow: 0 0 20px rgba(56, 189, 248, 0.1); }
+
+        /* Inputs e Botões */
+        input, select, textarea {
+            width: 100%; background: #000; border: 1.5px solid var(--border); color: #fff;
+            padding: 1.2rem; border-radius: 1.2rem; outline: none; font-family: inherit; font-weight: 600;
+        }
+        select, .selectable-card, button { cursor: pointer; }
+        textarea { resize: none; min-height: 120px; cursor: text; }
+
+        button { padding: 1.4rem; border-radius: 1.2rem; border: none; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: #fff; margin-top: 1rem; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: #fff; margin-top: 1rem; }
+        .btn-research { background: #334155; color: #cbd5e1; font-size: 10px; padding: 1rem; margin-top: 10px; }
+        .btn-research:hover { background: #475569; color: #fff; }
+
+        /* Resultado e Markdown */
+        .prose-result { display: none; padding: 3rem; background: #000; border-color: var(--primary); }
+        .prose-result h2 { color: var(--primary); margin: 2rem 0 1rem; font-size: 1.5rem; border-bottom: 1px solid var(--border); }
+        .prose-result p { margin-bottom: 1.2rem; color: #cbd5e1; }
+        .prose-result strong { color: #fff; font-weight: 700; }
+        .prose-result ul { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        .prose-result li { margin-bottom: 0.5rem; color: #94a3b8; }
+    </style>
 </head>
 <body>
 
     <div id="auth-modal">
         <div class="auth-card">
-            <h1 style="color:white; margin-bottom: 10px;">EPM <span style="color:var(--primary)">—</span></h1>
-            <p style="font-size: 10px; color: var(--text-dim); margin-bottom: 30px; letter-spacing: 3px; font-weight: 800;">ACESSO RESTRITO</p>
+            <h1>EPM <span>—</span></h1>
+            <p style="font-size: 10px; color: var(--text-dim); margin-bottom: 30px; letter-spacing: 4px; font-weight: 900;">ACESSO RESTRITO</p>
             <input type="password" id="modalKey" placeholder="Gemini API Key">
-            <button class="btn-primary" id="btnVerify" onclick="verificarKey()">Acessar Sistema</button>
-            <p id="auth-error" style="color:var(--error); font-size: 10px; margin-top: 20px; display: none; font-weight: 900;">⚠️ CHAVE INVÁLIDA</p>
+            <button class="btn-primary" onclick="verificarKey()" id="btnVerify">Validar e Acessar</button>
+            <p id="auth-error" style="color:var(--error); font-size: 10px; margin-top: 20px; display: none; font-weight: 900;">⚠️ CHAVE INVÁLIDA OU EXPIRADA</p>
         </div>
     </div>
 
     <div id="main-content" class="main-content locked">
         <header>
             <div>
-                <h1 style="letter-spacing: -4px;">EPM <span style="color:var(--primary)">—</span></h1>
-                <p style="color: var(--text-dim); font-size: 10px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase;">Monografia Acadêmica</p>
+                <h1>EPM <span>—</span> Monografia</h1>
+                <p style="color: var(--text-dim); font-size: 10px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase;">Escola de Pensamento Monográfico</p>
             </div>
-            <div style="color: var(--success); font-size: 9px; font-weight: 900; border: 1.5px solid var(--success); padding: 8px 16px; border-radius: 50px;">● CONEXÃO SEGURA</div>
+            <div style="color: var(--success); font-size: 9px; font-weight: 900; border: 1.5px solid var(--success); padding: 8px 16px; border-radius: 50px;">● AMBIENTE SEGURO</div>
         </header>
 
         <section id="section-1" class="card-step">
-            <span class="step-label">01. Grande Área de Pesquisa</span>
+            <span class="step-label">01. Grande Área</span>
             <div class="grid-selection">
                 <div class="selectable-card" onclick="selectArea('Direito de Família', this)">
-                    <h4 style="margin-bottom: 10px;">Direito de Família</h4>
-                    <p style="font-size: 11px; color: var(--text-dim);">Estudo das relações existenciais e novas entidades familiares.</p>
+                    <h3 style="margin-bottom: 10px;">Direito de Família</h3>
+                    <p style="font-size: 11px; color: var(--text-dim);">Conflitos existenciais e novas entidades.</p>
                 </div>
                 <div class="selectable-card" onclick="selectArea('Direito das Sucessões', this)">
-                    <h4 style="margin-bottom: 10px;">Direito das Sucessões</h4>
-                    <p style="font-size: 11px; color: var(--text-dim);">Patrimônio post-mortem e herança digital.</p>
+                    <h3 style="margin-bottom: 10px;">Direito das Sucessões</h3>
+                    <p style="font-size: 11px; color: var(--text-dim);">Patrimônio e transmissão digital.</p>
                 </div>
             </div>
         </section>
 
         <section id="section-2" class="card-step" style="opacity: 0.1; pointer-events: none; transition: 0.6s;">
-            <span class="step-label">02. Seleção do Subtema</span>
-            <select id="subtema">
-                <option value="">Selecione a área acima...</option>
-            </select>
-            <button class="btn-primary" onclick="gerarGargalos()" id="btnGargalos" style="margin-top: 20px;">Mapear Conflitos Jurídicos</button>
+            <span class="step-label">02. Subtema Específico</span>
+            <select id="subtema"><option value="">Aguardando seleção...</option></select>
+            <button class="btn-primary" onclick="gerarGargalos()" id="btnGargalos">Mapear Gargalos Jurídicos</button>
         </section>
 
         <section id="section-3" class="card-step" style="display: none; border-color: var(--primary);">
-            <span class="step-label" style="color: var(--primary);">IA — Gargalos Doutrinários</span>
+            <span class="step-label" style="color: var(--primary);">IA — Conflitos Identificados</span>
             <div id="gargalos-container" style="display: flex; flex-direction: column; gap: 15px;"></div>
         </section>
 
         <section id="section-4" class="card-step" style="display: none;">
             <span class="step-label">03. Problematização</span>
-            <div id="contexto-final" style="font-size: 10px; color: var(--primary); font-weight: 900; margin-bottom: 15px; text-transform: uppercase;"></div>
-            <textarea id="pergunta" placeholder="Escreva sua pergunta de pesquisa..."></textarea>
+            <div id="contexto-final" style="font-size: 10px; color: var(--primary); font-weight: 900; margin-bottom: 15px; text-transform: uppercase; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px;"></div>
+            <textarea id="pergunta" placeholder="Escreva sua pergunta de pesquisa acadêmica..."></textarea>
             <button class="btn-success" onclick="finalizarEtapa()" id="btnFinal">Validar e Gerar Relatório</button>
         </section>
 
         <div id="final-output" class="card-step prose-result"></div>
+
+        <section id="section-research" class="card-step" style="display: none; border-top: 5px solid var(--success);">
+            <span class="step-label" style="color: var(--success);">04. Terminal de Pesquisa Bibliográfica</span>
+            <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 20px;">Utilize as strings de busca otimizadas pela IA para encontrar trabalhos científicos:</p>
+            <div id="research-links" class="grid-selection"></div>
+        </section>
     </div>
 
-   <script>
-    let apiKey = "";
-    let selecao = { area: '', subtema: '', gargalo: '' };
+    <script>
+        let apiKey = "";
+        let selecao = { area: '', subtema: '', gargalo: '' };
 
-    // Tradutor de Markdown Embutido para evitar bloqueios de Tracking
-    function parseMarkdown(text) {
-        if(!text) return "";
-        return text
-            .replace(/### (.*)/g, '<h2>$1</h2>')
-            .replace(/## (.*)/g, '<h2>$1</h2>')
-            .replace(/\*\* (.*) \*\*/g, '<strong>$1</strong>')
-            .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
-            .replace(/^\* (.*)/gm, '<li>$1</li>')
-            .replace(/\n/g, '<br>');
-    }
-
-    async function verificarKey() {
-        const keyInput = document.getElementById('modalKey').value.trim();
-        if(!keyInput) return;
-        const btn = document.getElementById('btnVerify');
-        btn.innerText = "VERIFICANDO...";
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${keyInput}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas OK" }] }] })
-            });
-            if (response.ok) {
-                apiKey = keyInput;
-                document.getElementById('auth-modal').style.display = 'none';
-                document.getElementById('main-content').classList.remove('locked');
-            } else { throw new Error(); }
-        } catch (e) {
-            document.getElementById('auth-error').style.display = 'block';
-            btn.innerText = "Acessar Sistema";
+        // TRADUTOR DE MARKDOWN (Blindado contra bloqueios de tracking)
+        function cleanAndParse(text) {
+            if(!text) return "";
+            return text.replace(/### (.*)/g, '<h2>$1</h2>')
+                       .replace(/## (.*)/g, '<h2>$1</h2>')
+                       .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
+                       .replace(/\n\* (.*)/g, '<li>$1</li>')
+                       .replace(/\n/g, '<p></p>')
+                       .replace(/<p><\/p><li>/g, '<ul><li>')
+                       .replace(/<\/li><p><\/p>/g, '</li></ul>');
         }
-    }
 
-    function selectArea(area, el) {
-        selecao.area = area;
-        document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('card-selected'));
-        el.classList.add('card-selected');
-        const select = document.getElementById('subtema');
-        select.innerHTML = '<option value="">Escolha o subtema específico...</option>';
-        const lista = area === 'Direito de Família' ? 
-            ["Princípios Constitucionais", "Polissemia", "Casamento", "Regime de Bens", "Divórcio", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda e Convivência"] : 
-            ["Evolução Histórica", "Saisine", "Vocação Hereditária", "Sucessão Legítima", "Sucessão do Cônjuge/Companheiro", "Herança Digital", "Sucessão Testamentária", "Inventário e Partilha"];
-        lista.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
-        document.getElementById('section-2').style.opacity = "1";
-        document.getElementById('section-2').style.pointerEvents = "all";
-    }
+        async function verificarKey() {
+            const keyInput = document.getElementById('modalKey').value.trim();
+            const btn = document.getElementById('btnVerify');
+            if(!keyInput) return;
+            btn.innerText = "VERIFICANDO...";
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${keyInput}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
+                });
+                if (response.ok) {
+                    apiKey = keyInput;
+                    document.getElementById('auth-modal').style.display = 'none';
+                    document.getElementById('main-content').classList.remove('locked');
+                } else { throw new Error(); }
+            } catch (e) { document.getElementById('auth-error').style.display = 'block'; btn.innerText = "Validar e Acessar"; }
+        }
 
-    async function gerarGargalos() {
-        selecao.subtema = document.getElementById('subtema').value;
-        if (!selecao.subtema) return;
-        const btn = document.getElementById('btnGargalos');
-        btn.innerText = "IA ANALISANDO...";
-        btn.disabled = true;
+        function selectArea(area, el) {
+            selecao.area = area;
+            document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('card-selected'));
+            el.classList.add('card-selected');
+            const select = document.getElementById('subtema');
+            select.innerHTML = '<option value="">Escolha o subtema específico...</option>';
+            const lista = area === 'Direito de Família' ? ["Princípios Constitucionais", "Polissemia", "Casamento", "Regime de Bens", "Divórcio", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda", "Alimentos"] : ["Evolução Histórica", "Saisine", "Vocação Hereditária", "Legítima", "Herança Digital", "Testamentos", "Inventário"];
+            lista.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+            document.getElementById('section-2').style.opacity = "1";
+            document.getElementById('section-2').style.pointerEvents = "all";
+        }
 
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Aja como orientador jurídico. Para "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos polêmicos. Retorne APENAS um JSON: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
-                })
-            });
+        async function gerarGargalos() {
+            selecao.subtema = document.getElementById('subtema').value;
+            if(!selecao.subtema) return;
+            const btn = document.getElementById('btnGargalos');
+            btn.innerText = "IA ANALISANDO...";
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Aja como orientador jurídico. Para o tema "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos polêmicos. Retorne APENAS um JSON: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
+                    })
+                });
+                const data = await response.json();
+                if(response.status === 429) throw new Error("Aguarde 60 segundos.");
+                let cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+                const obj = JSON.parse(cleanText);
+                const container = document.getElementById('gargalos-container');
+                container.innerHTML = '';
+                obj.gargalos.forEach(g => {
+                    container.innerHTML += `<div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)"><h4 style="color:var(--primary); font-weight:800;">${g.titulo}</h4><p style="font-size:11px; color:var(--text-dim);">${g.descricao}</p></div>`;
+                });
+                document.getElementById('section-3').style.display = 'block';
+            } catch (e) { alert("⚠️ Limite ou Erro da IA. Tente em 60s."); } finally { btn.innerText = "Mapear Gargalos Jurídicos"; }
+        }
 
-            if (response.status === 503) throw new Error("O servidor do Google está sobrecarregado. Aguarde 30 segundos.");
-            if (response.status === 429) throw new Error("Muitas requisições. O plano gratuito exige um intervalo de 60 segundos.");
+        function selectGargalo(titulo, el) {
+            selecao.gargalo = titulo;
+            document.querySelectorAll('#section-3 .selectable-card').forEach(c => c.classList.remove('card-selected'));
+            el.classList.add('card-selected');
+            document.getElementById('contexto-final').innerText = `FOCO: ${selecao.subtema} > ${titulo}`;
+            document.getElementById('section-4').style.display = 'block';
+        }
 
-            const data = await response.json();
+        async function finalizarEtapa() {
+            const pergunta = document.getElementById('pergunta').value;
+            if(!pergunta) return alert("Construa sua pergunta!");
+            const output = document.getElementById('final-output');
+            const btn = document.getElementById('btnFinal');
+            output.style.display = 'block';
+            output.innerHTML = "<p style='color:var(--primary); font-weight:bold; animation:pulse 1s infinite;'>VALIDANDO E MAPEANDO REFERÊNCIAS...</p>";
             
-            // PROTEÇÃO CONTRA O ERRO 'READING 0'
-            if (!data.candidates || data.candidates.length === 0) {
-                throw new Error("A IA não conseguiu processar sua solicitação agora. Tente clicar novamente.");
-            }
-
-            let cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-            const obj = JSON.parse(cleanText);
-            const container = document.getElementById('gargalos-container');
-            container.innerHTML = '';
-            obj.gargalos.forEach(g => {
-                container.innerHTML += `<div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)"><h4 style="color:var(--primary);">${g.titulo}</h4><p style="font-size:11px; color:var(--text-dim);">${g.descricao}</p></div>`;
-            });
-            document.getElementById('section-3').style.display = 'block';
-        } catch (e) { 
-            alert("⚠️ " + e.message); 
-        } finally { 
-            btn.innerText = "Mapear Conflitos Jurídicos"; 
-            btn.disabled = false;
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Para: "${pergunta}" (${selecao.gargalo}), gere um relatório. Use ### para títulos e ** para negritos. Liste 3 Autores Gigantes e 3 Secundários.` }]}]
+                    })
+                });
+                const data = await response.json();
+                output.innerHTML = cleanAndParse(data.candidates[0].content.parts[0].text);
+                
+                // GERA OS LINKS DE PESQUISA
+                const query = encodeURIComponent(`"${selecao.subtema}" AND "${selecao.gargalo}"`);
+                document.getElementById('section-research').style.display = 'block';
+                document.getElementById('research-links').innerHTML = `
+                    <button class="btn-research" onclick="window.open('https://bdtd.ibict.br/vufind/Search/Results?lookfor=${query}', '_blank')">BDTD (Teses e Dissertações)</button>
+                    <button class="btn-research" onclick="window.open('https://search.scielo.org/?q=${query}', '_blank')">SciELO (Artigos Científicos)</button>
+                    <button class="btn-research" onclick="window.open('https://scholar.google.com.br/scholar?q=${query}', '_blank')">Google Acadêmico (Papers e Livros)</button>
+                    <button class="btn-research" onclick="window.open('https://oasisbr.ibict.br/vufind/Search/Results?lookfor=${query}', '_blank')">Portal Oasisbr (Repositórios)</button>
+                `;
+            } catch (e) { output.innerText = "Aguarde a cota da IA e tente novamente."; } finally { window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' }); }
         }
-    }
-
-    function selectGargalo(titulo, el) {
-        selecao.gargalo = titulo;
-        document.querySelectorAll('#section-3 .selectable-card').forEach(c => c.classList.remove('card-selected'));
-        el.classList.add('card-selected');
-        document.getElementById('contexto-final').innerText = `FOCO: ${selecao.subtema} > ${titulo}`;
-        document.getElementById('section-4').style.display = 'block';
-    }
-
-    async function finalizarEtapa() {
-        const pergunta = document.getElementById('pergunta').value;
-        const output = document.getElementById('final-output');
-        const btn = document.getElementById('btnFinal');
-        if(!pergunta) return alert("Escreva sua pergunta!");
-        
-        output.style.display = 'block';
-        output.innerHTML = "<p style='color:var(--primary); font-weight:bold; animation: pulse 1.5s infinite;'>GERANDO RELATÓRIO FINAL E MAPEANDO AUTORES...</p>";
-        btn.disabled = true;
-
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Para: "${pergunta}" (${selecao.gargalo}), faça: 1. Valide a viabilidade. 2. Liste 3 Autores 'Gigantes' e 3 'Secundários'. 3. Sugira uma hipótese inicial. Use ### para títulos.` }]}]
-                })
-            });
-
-            if (response.status === 429) throw new Error("Cota atingida. Espere 1 minuto.");
-            if (response.status === 503) throw new Error("Servidor ocupado. Tente novamente em instantes.");
-
-            const data = await response.json();
-
-            // PROTEÇÃO CONTRA O ERRO 'READING 0'
-            if (data.candidates && data.candidates[0]) {
-                const rawMarkdown = data.candidates[0].content.parts[0].text;
-                output.innerHTML = parseMarkdown(rawMarkdown);
-            } else {
-                throw new Error("O Google não enviou uma resposta válida. Tente reenviar.");
-            }
-        } catch (e) { 
-            output.innerHTML = `<div style="color:var(--error); font-weight:bold; padding:20px; border:1px solid var(--error); border-radius:10px;">⚠️ ${e.message}</div>`;
-        } finally { 
-            btn.disabled = false;
-            window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' }); 
-        }
-    }
-</script>
+    </script>
 </body>
 </html>

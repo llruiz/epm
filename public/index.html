@@ -16,12 +16,12 @@
             --text: #f1f5f9;
             --text-dim: #64748b;
             --error: #ef4444;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
 
-        /* Modal de Acesso */
         #auth-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
             display: flex; align-items: center; justify-content: center; z-index: 1000;
@@ -31,7 +31,6 @@
             border-radius: 2rem; width: 90%; max-width: 420px; text-align: center;
         }
 
-        /* Dashboard */
         .main-content { max-width: 1000px; margin: 0 auto; padding: 4rem 1.5rem; transition: filter 0.5s; }
         .locked { filter: blur(30px); pointer-events: none; }
 
@@ -42,7 +41,6 @@
         .card-step { background: var(--card); border: 1px solid var(--border); padding: 2.5rem; border-radius: 2rem; margin-bottom: 2.5rem; }
         .step-label { font-size: 0.65rem; font-weight: 900; color: var(--text-dim); letter-spacing: 0.3rem; text-transform: uppercase; margin-bottom: 1.5rem; display: block; }
 
-        /* Boxes de Seleção */
         .grid-selection { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
         .selectable-card {
             background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); padding: 1.8rem;
@@ -51,7 +49,6 @@
         .selectable-card:hover { border-color: var(--primary); background: rgba(56, 189, 248, 0.05); transform: translateY(-3px); }
         .card-selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); box-shadow: 0 0 20px rgba(56, 189, 248, 0.1); }
 
-        /* Inputs e Botões */
         input, select, textarea {
             width: 100%; background: #000; border: 1.5px solid var(--border); color: #fff;
             padding: 1.2rem; border-radius: 1.2rem; outline: none; font-family: inherit; font-weight: 600;
@@ -60,19 +57,46 @@
         textarea { resize: none; min-height: 120px; cursor: text; }
 
         button { padding: 1.4rem; border-radius: 1.2rem; border: none; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; transition: 0.2s; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-primary { background: var(--primary); color: #fff; margin-top: 1rem; }
-        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
         .btn-success { background: var(--success); color: #fff; margin-top: 1rem; }
+        .btn-success:hover:not(:disabled) { background: #059669; }
         .btn-research { background: #334155; color: #cbd5e1; font-size: 10px; padding: 1rem; margin-top: 10px; }
         .btn-research:hover { background: #475569; color: #fff; }
+        .btn-secondary { background: var(--border); color: var(--text); margin-top: 0.5rem; font-size: 11px; padding: 1rem; }
+        .btn-secondary:hover { background: #334155; }
 
-        /* Resultado e Markdown */
-        .prose-result { display: none; padding: 3rem; background: #000; border-color: var(--primary); }
+        .prose-result { display: none; padding: 3rem; background: #000; border: 1px solid var(--primary); border-radius: 1.5rem; margin-top: 2rem; }
         .prose-result h2 { color: var(--primary); margin: 2rem 0 1rem; font-size: 1.5rem; border-bottom: 1px solid var(--border); }
+        .prose-result h3 { color: var(--success); margin: 1.5rem 0 0.5rem; font-size: 1.2rem; }
         .prose-result p { margin-bottom: 1.2rem; color: #cbd5e1; }
         .prose-result strong { color: #fff; font-weight: 700; }
         .prose-result ul { margin-left: 1.5rem; margin-bottom: 1.5rem; }
         .prose-result li { margin-bottom: 0.5rem; color: #94a3b8; }
+
+        .error-box { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); color: var(--error); padding: 1rem; border-radius: 0.8rem; margin-top: 1rem; font-size: 12px; }
+        .warning-box { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); color: var(--warning); padding: 1rem; border-radius: 0.8rem; margin-top: 1rem; font-size: 12px; }
+        .info-box { background: rgba(56, 189, 248, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 1rem; border-radius: 0.8rem; margin-bottom: 1rem; font-size: 12px; }
+
+        .progress-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 1rem; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+
+        .cache-indicator { position: fixed; bottom: 20px; right: 20px; background: var(--card); border: 1px solid var(--border); padding: 10px 15px; border-radius: 10px; font-size: 10px; color: var(--text-dim); display: none; }
+        .cache-indicator.active { display: block; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .loading { animation: pulse 1.5s infinite; }
+
+        .retry-btn { background: var(--warning); color: #000; font-size: 10px; padding: 0.5rem 1rem; border-radius: 0.5rem; margin-left: 1rem; cursor: pointer; border: none; }
+        
+        .question-list { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+        .question-item { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 1rem; border-radius: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+        .question-item button { margin: 0; padding: 0.5rem 1rem; font-size: 10px; }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 10px; margin: 1rem 0; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-dim); }
+        .checkbox-item input { width: auto; }
     </style>
 </head>
 <body>
@@ -81,9 +105,13 @@
         <div class="auth-card">
             <h1>EPM <span>—</span></h1>
             <p style="font-size: 10px; color: var(--text-dim); margin-bottom: 30px; letter-spacing: 4px; font-weight: 900;">ACESSO RESTRITO</p>
-            <input type="password" id="modalKey" placeholder="Gemini API Key">
+            <div class="info-box" style="margin-bottom: 1rem;">
+                Use sua própria chave Gemini API (gratuita em aistudio.google.com/app/apikey)
+            </div>
+            <input type="password" id="modalKey" placeholder="Cole sua Gemini API Key aqui">
             <button class="btn-primary" onclick="verificarKey()" id="btnVerify">Validar e Acessar</button>
-            <p id="auth-error" style="color:var(--error); font-size: 10px; margin-top: 20px; display: none; font-weight: 900;">⚠️ CHAVE INVÁLIDA OU EXPIRADA</p>
+            <p id="auth-error" style="color:var(--error); font-size: 10px; margin-top: 20px; display: none; font-weight: 900;">⚠️ CHAVE INVÁLIDA OU MODELO INDISPONÍVEL</p>
+            <div class="progress-bar" id="auth-progress" style="display: none;"><div class="progress-fill" id="auth-progress-fill"></div></div>
         </div>
     </div>
 
@@ -96,158 +124,503 @@
             <div style="color: var(--success); font-size: 9px; font-weight: 900; border: 1.5px solid var(--success); padding: 8px 16px; border-radius: 50px;">● AMBIENTE SEGURO</div>
         </header>
 
+        <!-- ETAPA 1: Definição da Grande Área e do Tema -->
         <section id="section-1" class="card-step">
-            <span class="step-label">01. Grande Área</span>
+            <span class="step-label">01. Definição da Grande Área e do Tema</span>
+            <div class="info-box">
+                <strong>Identificar a Grande Área:</strong> Escolha entre Direito de Família ou Direito das Sucessões como ponto de partida.
+            </div>
             <div class="grid-selection">
                 <div class="selectable-card" onclick="selectArea('Direito de Família', this)">
                     <h3 style="margin-bottom: 10px;">Direito de Família</h3>
-                    <p style="font-size: 11px; color: var(--text-dim);">Conflitos existenciais e novas entidades.</p>
+                    <p style="font-size: 11px; color: var(--text-dim);">Conflitos existenciais, multiparentalidade, alienação parental, regime de bens, divórcio.</p>
                 </div>
                 <div class="selectable-card" onclick="selectArea('Direito das Sucessões', this)">
                     <h3 style="margin-bottom: 10px;">Direito das Sucessões</h3>
-                    <p style="font-size: 11px; color: var(--text-dim);">Patrimônio e transmissão digital.</p>
+                    <p style="font-size: 11px; color: var(--text-dim);">Herança digital, testamentos, inventário, legítima, vocação hereditária.</p>
                 </div>
             </div>
         </section>
 
-        <section id="section-2" class="card-step" style="opacity: 0.1; pointer-events: none; transition: 0.6s;">
-            <span class="step-label">02. Subtema Específico</span>
-            <select id="subtema"><option value="">Aguardando seleção...</option></select>
-            <button class="btn-primary" onclick="gerarGargalos()" id="btnGargalos">Mapear Gargalos Jurídicos</button>
+        <!-- ETAPA 1 (continuação): Afunilamento do Tema -->
+        <section id="section-1b" class="card-step" style="opacity: 0.1; pointer-events: none; transition: 0.6s;">
+            <span class="step-label">01b. Afunilamento do Tema</span>
+            <div class="info-box">
+                Identifique um subtema específico que desperte seu interesse ou que seja um "gargalo" em sua atuação profissional.
+            </div>
+            <select id="subtema" onchange="onSubtemaChange()">
+                <option value="">Aguardando seleção da Grande Área...</option>
+            </select>
+            
+            <div id="relevancia-check" style="display: none; margin-top: 1.5rem;">
+                <div class="info-box">
+                    <strong>Teste de Relevância:</strong> O tema possui relevância social e interessa a outros operadores do Direito?
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check-relevancia"> O tema afeta direitos fundamentais
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check-operadores"> Há discussão atual na doutrina/jurisprudência
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check-pratica"> É um problema recorrente na prática forense
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="gerarGargalos()" id="btnGargalos" disabled>Mapear Gargalos Jurídicos</button>
+            <div id="gargalos-error"></div>
         </section>
 
-        <section id="section-3" class="card-step" style="display: none; border-color: var(--primary);">
-            <span class="step-label" style="color: var(--primary);">IA — Conflitos Identificados</span>
-            <div id="gargalos-container" style="display: flex; flex-direction: column; gap: 15px;"></div>
-        </section>
-
-        <section id="section-4" class="card-step" style="display: none;">
-            <span class="step-label">03. Problematização</span>
+        <!-- ETAPA 2: Exercício de Problematização -->
+        <section id="section-2" class="card-step" style="display: none;">
+            <span class="step-label" style="color: var(--primary);">02. Exercício de Problematização</span>
             <div id="contexto-final" style="font-size: 10px; color: var(--primary); font-weight: 900; margin-bottom: 15px; text-transform: uppercase; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px;"></div>
-            <textarea id="pergunta" placeholder="Escreva sua pergunta de pesquisa acadêmica..."></textarea>
-            <button class="btn-success" onclick="finalizarEtapa()" id="btnFinal">Validar e Gerar Relatório</button>
+            
+            <div class="info-box">
+                <strong>Construa Múltiplas Perguntas:</strong> Não tente chegar à pergunta perfeita de imediato. Evite respostas binárias (sim/não).
+            </div>
+
+            <div id="gargalos-container" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 1.5rem;"></div>
+
+            <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 0.5rem; display: block;">Suas Perguntas de Pesquisa (mínimo 3):</label>
+                <div class="question-list" id="question-list"></div>
+                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <input type="text" id="nova-pergunta" placeholder="Digite uma pergunta de pesquisa..." style="flex: 1; margin: 0;">
+                    <button class="btn-secondary" onclick="adicionarPergunta()" style="margin: 0; white-space: nowrap;">Adicionar</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 0.5rem; display: block;">Pergunta Definitiva (refinada):</label>
+                <textarea id="pergunta-definitiva" placeholder="Após analisar as opções acima, escreva sua pergunta de pesquisa final..."></textarea>
+                <div class="checkbox-group" style="margin-top: 1rem;">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check-viabilidade"> Viável para 60-100 laudas no prazo do curso
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn-success" onclick="finalizarEtapa()" id="btnFinal" disabled>Validar e Gerar Relatório</button>
         </section>
 
-        <div id="final-output" class="card-step prose-result"></div>
+        <!-- ETAPA 3: Levantamento Preliminar -->
+        <section id="section-3" class="card-step" style="display: none;">
+            <span class="step-label" style="color: var(--success);">03. Levantamento Preliminar</span>
+            <div id="final-output" class="prose-result" style="display: block; border: none; padding: 0; background: transparent;"></div>
+        </section>
 
         <section id="section-research" class="card-step" style="display: none; border-top: 5px solid var(--success);">
             <span class="step-label" style="color: var(--success);">04. Terminal de Pesquisa Bibliográfica</span>
-            <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 20px;">Utilize as strings de busca otimizadas pela IA para encontrar trabalhos científicos:</p>
+            <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 20px;">Utilize as strings de busca otimizadas para encontrar trabalhos científicos:</p>
             <div id="research-links" class="grid-selection"></div>
         </section>
     </div>
 
-    <script>
-        let apiKey = "";
-        let selecao = { area: '', subtema: '', gargalo: '' };
+    <div id="cache-indicator" class="cache-indicator">💾 Dados em cache local</div>
 
-        // TRADUTOR DE MARKDOWN (Blindado contra bloqueios de tracking)
+    <script>
+        // CONFIGURAÇÃO CORRIGIDA
+        const CONFIG = {
+            MODEL: 'gemini-2.5-flash', // CORRETO: gemini-2.5-flash (não 2.5)
+            API_BASE: 'https://generativelanguage.googleapis.com/v1/models',
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 2000,
+            RATE_LIMIT_DELAY: 1000, // 1 segundo entre chamadas
+            CACHE_KEY: 'epm_monografia_cache'
+        };
+
+        let apiKey = "";
+        let selecao = { area: '', subtema: '', gargalo: '', perguntas: [] };
+        let lastRequestTime = 0;
+        let requestQueue = [];
+
+        // Sistema de Cache Local
+        const Cache = {
+            get(key) {
+                try {
+                    const data = localStorage.getItem(CONFIG.CACHE_KEY + '_' + key);
+                    if (!data) return null;
+                    const parsed = JSON.parse(data);
+                    if (Date.now() - parsed.timestamp > 3600000) { // 1 hora
+                        localStorage.removeItem(CONFIG.CACHE_KEY + '_' + key);
+                        return null;
+                    }
+                    return parsed.value;
+                } catch (e) { return null; }
+            },
+            set(key, value) {
+                try {
+                    localStorage.setItem(CONFIG.CACHE_KEY + '_' + key, JSON.stringify({
+                        timestamp: Date.now(),
+                        value: value
+                    }));
+                    document.getElementById('cache-indicator').classList.add('active');
+                } catch (e) { console.warn('Cache failed:', e); }
+            },
+            clear() {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith(CONFIG.CACHE_KEY)) localStorage.removeItem(key);
+                });
+            }
+        };
+
+        // Rate Limiter
+        async function rateLimit() {
+            const now = Date.now();
+            const timeSinceLastRequest = now - lastRequestTime;
+            if (timeSinceLastRequest < CONFIG.RATE_LIMIT_DELAY) {
+                await new Promise(r => setTimeout(r, CONFIG.RATE_LIMIT_DELAY - timeSinceLastRequest));
+            }
+            lastRequestTime = Date.now();
+        }
+
+        // API Client com Retry e Error Handling
+        async function callGemini(prompt, temperature = 0.7) {
+            await rateLimit();
+            
+            const cacheKey = btoa(prompt).slice(0, 50);
+            const cached = Cache.get(cacheKey);
+            if (cached) return cached;
+
+            let lastError;
+            
+            for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE}/${CONFIG.MODEL}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { temperature: temperature, maxOutputTokens: 2048 }
+                        })
+                    });
+
+                    if (response.status === 503) {
+                        throw new Error('SERVIÇO_INDISPONÍVEL');
+                    }
+                    if (response.status === 429) {
+                        throw new Error('LIMITE_EXCEDIDO');
+                    }
+                    if (response.status === 400) {
+                        const err = await response.json();
+                        throw new Error(`MODELO_INVÁLIDO: ${err.error?.message || 'Verifique se o modelo está correto'}`);
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP_${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (!data.candidates || !data.candidates[0]) {
+                        throw new Error('RESPOSTA_VAZIA');
+                    }
+
+                    const text = data.candidates[0].content.parts[0].text;
+                    Cache.set(cacheKey, text);
+                    return text;
+
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Tentativa ${attempt} falhou:`, error.message);
+                    
+                    if (error.message === 'SERVIÇO_INDISPONÍVEL' || error.message === 'LIMITE_EXCEDIDO') {
+                        const delay = attempt * CONFIG.RETRY_DELAY;
+                        await new Promise(r => setTimeout(r, delay));
+                    } else if (error.message.includes('MODELO_INVÁLIDO')) {
+                        throw error; // Não retry em erro de modelo
+                    }
+                }
+            }
+            
+            throw lastError;
+        }
+
         function cleanAndParse(text) {
-            if(!text) return "";
-            return text.replace(/### (.*)/g, '<h2>$1</h2>')
-                       .replace(/## (.*)/g, '<h2>$1</h2>')
-                       .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
-                       .replace(/\n\* (.*)/g, '<li>$1</li>')
-                       .replace(/\n/g, '<p></p>')
-                       .replace(/<p><\/p><li>/g, '<ul><li>')
-                       .replace(/<\/li><p><\/p>/g, '</li></ul>');
+            if (!text) return "";
+            return text
+                .replace(/### (.*)/g, '<h2>$1</h2>')
+                .replace(/## (.*)/g, '<h2>$1</h2>')
+                .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\* (.*)/g, '<li>$1</li>')
+                .replace(/\n- (.*)/g, '<li>$1</li>')
+                .replace(/\n/g, '<p></p>')
+                .replace(/<p><\/p><li>/g, '<ul><li>')
+                .replace(/<\/li><p><\/p>/g, '</li></ul>')
+                .replace(/<\/ul><ul>/g, '');
         }
 
         async function verificarKey() {
             const keyInput = document.getElementById('modalKey').value.trim();
             const btn = document.getElementById('btnVerify');
-            if(!keyInput) return;
+            const progress = document.getElementById('auth-progress');
+            const progressFill = document.getElementById('auth-progress-fill');
+            
+            if (!keyInput) return;
+            
+            btn.disabled = true;
             btn.innerText = "VERIFICANDO...";
+            progress.style.display = 'block';
+            progressFill.style.width = '30%';
+
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${keyInput}`, {
+                // Testa com um ping simples
+                const response = await fetch(`${CONFIG.API_BASE}/${CONFIG.MODEL}:generateContent?key=${keyInput}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas 'OK'" }] }] })
                 });
+
+                progressFill.style.width = '70%';
+
                 if (response.ok) {
                     apiKey = keyInput;
-                    document.getElementById('auth-modal').style.display = 'none';
-                    document.getElementById('main-content').classList.remove('locked');
-                } else { throw new Error(); }
-            } catch (e) { document.getElementById('auth-error').style.display = 'block'; btn.innerText = "Validar e Acessar"; }
+                    progressFill.style.width = '100%';
+                    setTimeout(() => {
+                        document.getElementById('auth-modal').style.display = 'none';
+                        document.getElementById('main-content').classList.remove('locked');
+                    }, 300);
+                } else {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'Chave inválida');
+                }
+            } catch (e) {
+                document.getElementById('auth-error').style.display = 'block';
+                document.getElementById('auth-error').innerText = '⚠️ ' + (e.message.includes('models') ? 'MODELO NÃO ENCONTRADO. Use gemini-2.5-flash' : 'CHAVE INVÁLIDA OU API INDISPONÍVEL');
+                btn.disabled = false;
+                btn.innerText = "Validar e Acessar";
+                progress.style.display = 'none';
+            }
         }
 
         function selectArea(area, el) {
             selecao.area = area;
-            document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('card-selected'));
+            document.querySelectorAll('#section-1 .selectable-card').forEach(c => c.classList.remove('card-selected'));
             el.classList.add('card-selected');
+            
             const select = document.getElementById('subtema');
             select.innerHTML = '<option value="">Escolha o subtema específico...</option>';
-            const lista = area === 'Direito de Família' ? ["Princípios Constitucionais", "Polissemia", "Casamento", "Regime de Bens", "Divórcio", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda", "Alimentos"] : ["Evolução Histórica", "Saisine", "Vocação Hereditária", "Legítima", "Herança Digital", "Testamentos", "Inventário"];
+            
+            const lista = area === 'Direito de Família' 
+                ? ["Princípios Constitucionais", "Polissemia", "Casamento", "Regime de Bens", "Divórcio", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda", "Alimentos", "Adoção", "Filiação"]
+                : ["Evolução Histórica", "Saisine", "Vocação Hereditária", "Legítima", "Herança Digital", "Testamentos", "Inventário", "Planejamento Sucessório", "Usufruto"];
+            
             lista.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
-            document.getElementById('section-2').style.opacity = "1";
-            document.getElementById('section-2').style.pointerEvents = "all";
+            
+            document.getElementById('section-1b').style.opacity = "1";
+            document.getElementById('section-1b').style.pointerEvents = "all";
+        }
+
+        function onSubtemaChange() {
+            const subtema = document.getElementById('subtema').value;
+            document.getElementById('relevancia-check').style.display = subtema ? 'block' : 'none';
+            document.getElementById('btnGargalos').disabled = !subtema;
         }
 
         async function gerarGargalos() {
             selecao.subtema = document.getElementById('subtema').value;
-            if(!selecao.subtema) return;
+            if (!selecao.subtema) return;
+            
             const btn = document.getElementById('btnGargalos');
+            const errorDiv = document.getElementById('gargalos-error');
+            btn.disabled = true;
             btn.innerText = "IA ANALISANDO...";
+            errorDiv.innerHTML = '';
+
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Aja como orientador jurídico. Para o tema "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos polêmicos. Retorne APENAS um JSON: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
-                    })
-                });
-                const data = await response.json();
-                if(response.status === 429) throw new Error("Aguarde 60 segundos.");
-                let cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+                const prompt = `Aja como orientador jurídico sênior. Para o tema "${selecao.area}: ${selecao.subtema}", identifique EXATAMENTE 3 gargalos polêmicos atuais no Brasil (2024-2025) que sejam relevantes para uma monografia de pós-graduação em direito. 
+                
+Para cada gargalo, forneça:
+1. Título curto e impactante
+2. Descrição de 2-3 linhas explicando a controvérsia
+3. Por que é relevante academicamente
+
+Retorne APENAS um JSON válido no formato:
+{"gargalos": [{"titulo": "...", "descricao": "...", "relevancia": "..."}]}`;
+
+                const text = await callGemini(prompt, 0.8);
+                let cleanText = text.replace(/```json|```/g, '').trim();
                 const obj = JSON.parse(cleanText);
+                
                 const container = document.getElementById('gargalos-container');
                 container.innerHTML = '';
-                obj.gargalos.forEach(g => {
-                    container.innerHTML += `<div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)"><h4 style="color:var(--primary); font-weight:800;">${g.titulo}</h4><p style="font-size:11px; color:var(--text-dim);">${g.descricao}</p></div>`;
+                
+                obj.gargalos.forEach((g, idx) => {
+                    container.innerHTML += `
+                        <div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <h4 style="color:var(--primary); font-weight:800; margin-bottom: 8px;">${idx + 1}. ${g.titulo}</h4>
+                                <span style="font-size: 10px; color: var(--success); border: 1px solid var(--success); padding: 2px 8px; border-radius: 10px;">Selecionar</span>
+                            </div>
+                            <p style="font-size:12px; color:var(--text); margin-bottom: 8px;">${g.descricao}</p>
+                            <p style="font-size:10px; color:var(--text-dim);"><strong>Relevância:</strong> ${g.relevancia}</p>
+                        </div>
+                    `;
                 });
-                document.getElementById('section-3').style.display = 'block';
-            } catch (e) { alert("⚠️ Limite ou Erro da IA. Tente em 60s."); } finally { btn.innerText = "Mapear Gargalos Jurídicos"; }
+
+                document.getElementById('section-2').style.display = 'block';
+                document.getElementById('contexto-final').innerText = `ÁREA: ${selecao.area} > SUBTEMA: ${selecao.subtema}`;
+                
+                setTimeout(() => {
+                    document.getElementById('section-2').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+
+            } catch (e) {
+                console.error(e);
+                let msg = 'Erro ao consultar IA. ';
+                if (e.message.includes('SERVIÇO_INDISPONÍVEL')) msg += 'Serviço temporariamente indisponível. Tente novamente em alguns segundos.';
+                else if (e.message.includes('LIMITE_EXCEDIDO')) msg += 'Limite de requisições excedido. Aguarde 1 minuto.';
+                else if (e.message.includes('MODELO_INVÁLIDO')) msg += 'Modelo incorreto configurado. Contate o administrador.';
+                else msg += 'Verifique sua conexão e tente novamente.';
+                
+                errorDiv.innerHTML = `
+                    <div class="error-box">
+                        ${msg}
+                        <button class="retry-btn" onclick="gerarGargalos()">Tentar Novamente</button>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Mapear Gargalos Jurídicos";
+            }
         }
 
         function selectGargalo(titulo, el) {
             selecao.gargalo = titulo;
-            document.querySelectorAll('#section-3 .selectable-card').forEach(c => c.classList.remove('card-selected'));
+            document.querySelectorAll('#gargalos-container .selectable-card').forEach(c => c.classList.remove('card-selected'));
             el.classList.add('card-selected');
-            document.getElementById('contexto-final').innerText = `FOCO: ${selecao.subtema} > ${titulo}`;
-            document.getElementById('section-4').style.display = 'block';
+            document.getElementById('contexto-final').innerText = `ÁREA: ${selecao.area} > SUBTEMA: ${selecao.subtema} > GARGALO: ${titulo}`;
+            document.getElementById('btnFinal').disabled = false;
+        }
+
+        function adicionarPergunta() {
+            const input = document.getElementById('nova-pergunta');
+            const pergunta = input.value.trim();
+            
+            if (!pergunta) return;
+            if (pergunta.length < 10) {
+                alert('A pergunta deve ter pelo menos 10 caracteres');
+                return;
+            }
+            
+            selecao.perguntas.push(pergunta);
+            renderPerguntas();
+            input.value = '';
+        }
+
+        function removerPergunta(idx) {
+            selecao.perguntas.splice(idx, 1);
+            renderPerguntas();
+        }
+
+        function renderPerguntas() {
+            const container = document.getElementById('question-list');
+            container.innerHTML = selecao.perguntas.map((p, i) => `
+                <div class="question-item">
+                    <span style="font-size: 13px;">${i + 1}. ${p}</span>
+                    <button class="btn-secondary" onclick="removerPergunta(${i})" style="margin: 0;">Remover</button>
+                </div>
+            `).join('');
         }
 
         async function finalizarEtapa() {
-            const pergunta = document.getElementById('pergunta').value;
-            if(!pergunta) return alert("Construa sua pergunta!");
-            const output = document.getElementById('final-output');
-            const btn = document.getElementById('btnFinal');
-            output.style.display = 'block';
-            output.innerHTML = "<p style='color:var(--primary); font-weight:bold; animation:pulse 1s infinite;'>VALIDANDO E MAPEANDO REFERÊNCIAS...</p>";
+            const perguntaDefinitiva = document.getElementById('pergunta-definitiva').value.trim();
+            const viabilidade = document.getElementById('check-viabilidade').checked;
             
+            if (!perguntaDefinitiva) {
+                alert('Defina sua pergunta de pesquisa definitiva');
+                return;
+            }
+            if (selecao.perguntas.length < 2) {
+                alert('Adicione pelo menos 2 perguntas alternativas antes de prosseguir');
+                return;
+            }
+            if (!viabilidade) {
+                alert('Confirme que a pesquisa é viável para 60-100 laudas');
+                return;
+            }
+
+            const btn = document.getElementById('btnFinal');
+            const output = document.getElementById('final-output');
+            
+            btn.disabled = true;
+            btn.innerText = "GERANDO RELATÓRIO...";
+            output.innerHTML = "<p class='loading' style='color:var(--primary); font-weight:bold;'>Analisando e mapeando referências...</p>";
+            document.getElementById('section-3').style.display = 'block';
+
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Para: "${pergunta}" (${selecao.gargalo}), gere um relatório. Use ### para títulos e ** para negritos. Liste 3 Autores Gigantes e 3 Secundários.` }]}]
-                    })
-                });
-                const data = await response.json();
-                output.innerHTML = cleanAndParse(data.candidates[0].content.parts[0].text);
+                const prompt = `Aja como orientador acadêmico de pós-graduação em Direito. 
+
+CONTEXTO:
+- Área: ${selecao.area}
+- Subtema: ${selecao.subtema}
+- Gargalo selecionado: ${selecao.gargalo}
+- Pergunta de pesquisa: "${perguntaDefinitiva}"
+- Perguntas alternativas consideradas: ${selecao.perguntas.join('; ')}
+
+Gere um relatório estruturado contendo:
+
+### 1. Análise da Problematização
+Avalie se a pergunta de pesquisa atende aos critérios acadêmicos: é não-binária, viável, relevante e original?
+
+### 2. Mapeamento de Autores Gigantes (Doutrinadores Principais)
+Liste 3 autores nacionais ou internacionais indispensáveis para o tema, com obra principal e por que são essenciais.
+
+### 3. Mapeamento de Autores Secundários (Atuais)
+Liste 3 autores mais recentes (últimos 5 anos) que trazem perspectivas contemporâneas.
+
+### 4. Intuição de Respostas (Hipóteses)
+Apresente 2-3 hipóteses plausíveis de resposta para a pergunta de pesquisa, com breve justificativa.
+
+### 5. Sugestões de Strings de Busca
+Forneça 3 combinações de termos para pesquisa em bases como Google Scholar, SciELO e BDTD.
+
+Use formatação markdown com **negritos** para ênfase.`;
+
+                const text = await callGemini(prompt, 0.6);
+                output.innerHTML = cleanAndParse(text);
                 
-                // GERA OS LINKS DE PESQUISA
-                const query = encodeURIComponent(`"${selecao.subtema}" AND "${selecao.gargalo}"`);
+                // Gera links de pesquisa
+                const queryBase = `${selecao.area} ${selecao.subtema} ${selecao.gargalo}`;
+                const queryEncoded = encodeURIComponent(queryBase);
+                const queryScholar = encodeURIComponent(`"${selecao.subtema}" AND "${selecao.gargalo}"`);
+                
                 document.getElementById('section-research').style.display = 'block';
                 document.getElementById('research-links').innerHTML = `
-                    <button class="btn-research" onclick="window.open('https://bdtd.ibict.br/vufind/Search/Results?lookfor=${query}', '_blank')">BDTD (Teses e Dissertações)</button>
-                    <button class="btn-research" onclick="window.open('https://search.scielo.org/?q=${query}', '_blank')">SciELO (Artigos Científicos)</button>
-                    <button class="btn-research" onclick="window.open('https://scholar.google.com.br/scholar?q=${query}', '_blank')">Google Acadêmico (Papers e Livros)</button>
-                    <button class="btn-research" onclick="window.open('https://oasisbr.ibict.br/vufind/Search/Results?lookfor=${query}', '_blank')">Portal Oasisbr (Repositórios)</button>
+                    <button class="btn-research" onclick="window.open('https://scholar.google.com.br/scholar?q=${queryScholar}', '_blank')">Google Scholar (Papers)</button>
+                    <button class="btn-research" onclick="window.open('https://search.scielo.org/?q=${queryEncoded}', '_blank')">SciELO (Artigos BR)</button>
+                    <button class="btn-research" onclick="window.open('https://bdtd.ibict.br/vufind/Search/Results?lookfor=${queryEncoded}', '_blank')">BDTD (Teses/Dissertações)</button>
+                    <button class="btn-research" onclick="window.open('https://oasisbr.ibict.br/vufind/Search/Results?lookfor=${queryEncoded}', '_blank')">Oasisbr (Repositórios)</button>
+                    <button class="btn-research" onclick="window.open('https://www.jusbrasil.com.br/jurisprudencia/busca?q=${queryEncoded}', '_blank')">JusBrasil (Jurisprudência)</button>
+                    <button class="btn-research" onclick="window.open('https://portal.stf.jus.br/jurisprudencia/listarJurisprudencia.asp?base=baseAcordaos&pesquisa=${queryEncoded}', '_blank')">STF (Jurisprudência)</button>
                 `;
-            } catch (e) { output.innerText = "Aguarde a cota da IA e tente novamente."; } finally { window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' }); }
+
+                window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' });
+
+            } catch (e) {
+                output.innerHTML = `
+                    <div class="error-box">
+                        Erro ao gerar relatório: ${e.message.includes('LIMITE') ? 'Limite de requisições excedido. Aguarde 1 minuto e tente novamente.' : 'Serviço temporariamente indisponível.'}
+                        <button class="retry-btn" onclick="finalizarEtapa()">Tentar Novamente</button>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Validar e Gerar Relatório";
+            }
         }
+
+        // Tecla Enter no input de API key
+        document.getElementById('modalKey')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verificarKey();
+        });
+
+        // Tecla Enter no input de pergunta
+        document.getElementById('nova-pergunta')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') adicionarPergunta();
+        });
     </script>
 </body>
 </html>

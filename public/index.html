@@ -5,85 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPM | Estruturador de Monografias</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/marked/marked.min.js](https://cdn.jsdelivr.net/npm/marked/marked.min.js)"></script>
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap)" rel="stylesheet">
 </head>
 <body>
 
     <div id="auth-modal">
         <div class="auth-card">
-            <h1 style="color:white; margin-bottom: 5px;">EPM <span style="color:var(--primary)">—</span></h1>
-            <p style="font-size: 10px; color: var(--text-dim); margin-bottom: 30px; letter-spacing: 2px;">ACESSO RESTRITO</p>
-            <input type="password" id="modalKey" placeholder="Insira sua Gemini API Key" style="width: 100%; padding: 15px; background: #000; border: 1px solid var(--border); color: var(--primary); border-radius: 12px; text-align: center; margin-bottom: 20px; outline: none;">
-            <button class="btn-primary" id="btnVerify" onclick="verificarKey()">Verificar e Acessar</button>
-            <p id="auth-error" style="color:#ef4444; font-size: 10px; margin-top: 15px; display: none; font-weight: bold;">⚠️ CHAVE INVÁLIDA OU EXPIRADA</p>
+            <h1 class="legal-title" style="color:white; font-size: 2.5rem;">EPM <span style="color:var(--primary)">—</span></h1>
+            <p style="font-size: 10px; color: var(--text-dim); margin-bottom: 30px; letter-spacing: 3px; font-weight: bold;">ACESSO RESTRITO AO ESTRUTURADOR</p>
+            <input type="password" id="modalKey" placeholder="Cole sua Gemini API Key aqui">
+            <button class="btn-primary" id="btnVerify" onclick="verificarKey()">Validar Credenciais</button>
+            <p id="auth-error" style="color:#ef4444; font-size: 10px; margin-top: 15px; display: none; font-weight: bold;">⚠️ CHAVE INVÁLIDA OU SEM SALDO</p>
         </div>
     </div>
 
     <div id="main-content" class="main-content locked">
         <header>
             <div>
-                <h1 style="font-size: 2.5rem; letter-spacing: -2px;">EPM <span style="color:var(--primary)">—</span></h1>
-                <p style="color: var(--text-dim); font-size: 10px; font-weight: bold; letter-spacing: 3px;">MONOGRAFIA ACADÊMICA</p>
+                <h1 class="legal-title" style="font-size: 3rem; letter-spacing: -2px;">EPM <span style="color:var(--primary)">—</span></h1>
+                <p style="color: var(--text-dim); font-size: 11px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase;">Escola de Pensamento Monográfico</p>
             </div>
-            <div style="color: var(--success); font-size: 9px; font-weight: bold; border: 1px solid var(--success); padding: 5px 10px; border-radius: 20px;">● SISTEMA CONECTADO</div>
+            <div style="color: var(--success); font-size: 9px; font-weight: bold; border: 1.5px solid var(--success); padding: 6px 15px; border-radius: 30px; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);">
+                ● AMBIENTE PROTEGIDO
+            </div>
         </header>
 
         <section id="section-1" class="card-step">
-            <p style="font-size: 9px; font-weight: bold; color: var(--text-dim); margin-bottom: 20px; letter-spacing: 1px;">01. DEFINIÇÃO DA GRANDE ÁREA</p>
+            <p class="step-label">01. GRANDE ÁREA DE PESQUISA</p>
             <div class="grid-selection">
                 <div class="selectable-card" onclick="selectArea('Direito de Família', this)">
-                    <h4 style="margin-bottom: 10px;">Direito de Família</h4>
-                    <p style="font-size: 11px; color: var(--text-dim);">Foco em relações existenciais e novas entidades.</p>
+                    <h4 style="color:white; margin-bottom: 8px; font-size: 1.1rem;">Direito de Família</h4>
+                    <p style="font-size: 11px; color: var(--text-dim);">Estudo das relações existenciais, parentalidade e novas entidades.</p>
                 </div>
                 <div class="selectable-card" onclick="selectArea('Direito das Sucessões', this)">
-                    <h4 style="margin-bottom: 10px;">Direito das Sucessões</h4>
-                    <p style="font-size: 11px; color: var(--text-dim);">Foco em patrimônio e herança digital.</p>
+                    <h4 style="color:white; margin-bottom: 8px; font-size: 1.1rem;">Direito das Sucessões</h4>
+                    <p style="font-size: 11px; color: var(--text-dim);">Patrimônio post-mortem, herança digital e sucessão legítima.</p>
                 </div>
             </div>
         </section>
 
-        <section id="section-2" class="card-step" style="opacity: 0.2; pointer-events: none; transition: 0.5s;">
-            <p style="font-size: 9px; font-weight: bold; color: var(--text-dim); margin-bottom: 20px;">02. ESCOLHA DO SUBTEMA</p>
-            <select id="subtema" style="width: 100%; padding: 18px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 14px; margin-bottom: 20px; cursor: pointer; outline: none; font-weight: bold;">
-                <option value="">Selecione a área acima...</option>
+        <section id="section-2" class="card-step" style="opacity: 0.15; pointer-events: none; transition: 0.6s all ease;">
+            <p class="step-label">02. SELEÇÃO DO SUBTEMA</p>
+            <select id="subtema" class="select-input">
+                <option value="">Aguardando seleção da área...</option>
             </select>
-            <button class="btn-primary" onclick="gerarGargalos()" id="btnGargalos">Mapear Gargalos Jurídicos</button>
+            <button class="btn-primary" onclick="gerarGargalos()" id="btnGargalos">Mapear Conflitos Jurídicos</button>
         </section>
 
-        <section id="section-3" class="card-step" style="display: none; border-color: var(--primary); background: rgba(56, 189, 248, 0.02);">
-            <p style="font-size: 9px; font-weight: bold; color: var(--primary); margin-bottom: 20px;">IA - CONFLITOS DOUTRINÁRIOS IDENTIFICADOS</p>
+        <section id="section-3" class="card-step" style="display: none; border-color: var(--primary); background: linear-gradient(to bottom right, #0f172a, #020617);">
+            <p class="step-label" style="color: var(--primary);">IA — GARGALOS DOUTRINÁRIOS SUGERIDOS</p>
             <div id="gargalos-container" style="display: flex; flex-direction: column; gap: 15px;"></div>
         </section>
 
         <section id="section-4" class="card-step" style="display: none;">
-            <p style="font-size: 9px; font-weight: bold; color: var(--text-dim); margin-bottom: 20px;">03. EXERCÍCIO DE PROBLEMATIZAÇÃO</p>
-            <div id="contexto-final" style="font-size: 10px; color: var(--primary); font-weight: bold; margin-bottom: 15px; text-transform: uppercase;"></div>
-            <textarea id="pergunta" placeholder="Escreva sua pergunta de pesquisa aqui..." style="width: 100%; height: 120px; background: #000; border: 1px solid var(--border); color: #fff; padding: 20px; border-radius: 16px; margin-bottom: 20px; outline: none; resize: none;"></textarea>
-            <button class="btn-success" onclick="finalizarEtapa()" id="btnFinal">Validar e Gerar Referências</button>
+            <p class="step-label">03. CONSTRUÇÃO DA PERGUNTA DE PESQUISA</p>
+            <div id="contexto-final" style="font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 15px; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 8px;"></div>
+            <textarea id="pergunta" placeholder="Ex: De que forma o princípio da afetividade impacta na sucessão digital de bens existenciais?" class="textarea-input"></textarea>
+            <button class="btn-success" onclick="finalizarEtapa()" id="btnFinal">Validar Tema e Gerar Relatório</button>
         </section>
 
-        <div id="final-output" class="card-step prose-result" style="display: none;"></div>
+        <div id="final-output" class="card-step prose-result" style="display: none; border: 2px solid rgba(56,189,248,0.3);"></div>
     </div>
 
     <script>
         let apiKey = "";
         let selecao = { area: '', subtema: '', gargalo: '' };
 
-        const TEMAS_FAMILIA = ["Princípios Constitucionais", "Polissemia e Entidades Familiares", "Casamento e Validade", "Eficácia do Casamento", "Autonomia Privada", "Regime de Bens", "Divórcio e Partilha", "Responsabilidade Civil", "Fraude na Família", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda e Convivência", "Poder Familiar"];
+        const TEMAS_FAMILIA = ["Princípios Constitucionais", "Polissemia e Entidades Familiares", "Casamento e Validade", "Eficácia do Casamento", "Autonomia Privada", "Regime de Bens", "Divórcio e Partilha", "Responsabilidade Civil", "Fraude na Família", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda e Convivência"];
         const TEMAS_SUCESSOES = ["Evolução Histórica", "Abertura da Sucessão (Saisine)", "Vocação Hereditária", "Sucessão Legítima", "Sucessão do Cônjuge/Companheiro", "Herança Digital", "Sucessão Testamentária", "Inventário e Partilha", "Indignidade e Deserdação"];
 
         async function verificarKey() {
             const keyInput = document.getElementById('modalKey').value.trim();
             if(!keyInput) return;
             const btn = document.getElementById('btnVerify');
-            btn.innerText = "VERIFICANDO...";
+            btn.innerText = "VALIDANDO...";
             btn.disabled = true;
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${keyInput}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas OK" }] }] })
                 });
 
                 if (response.ok) {
@@ -93,7 +96,7 @@
                 } else { throw new Error(); }
             } catch (e) {
                 document.getElementById('auth-error').style.display = 'block';
-                btn.innerText = "Verificar e Acessar";
+                btn.innerText = "Validar Credenciais";
                 btn.disabled = false;
             }
         }
@@ -102,12 +105,10 @@
             selecao.area = area;
             document.querySelectorAll('#section-1 .selectable-card').forEach(c => c.classList.remove('card-selected'));
             el.classList.add('card-selected');
-            
             const select = document.getElementById('subtema');
             select.innerHTML = '<option value="">Escolha o subtema específico...</option>';
             const lista = area === 'Direito de Família' ? TEMAS_FAMILIA : TEMAS_SUCESSOES;
             lista.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
-            
             document.getElementById('section-2').style.opacity = "1";
             document.getElementById('section-2').style.pointerEvents = "all";
             window.scrollTo({ top: document.getElementById('section-2').offsetTop - 50, behavior: 'smooth' });
@@ -117,7 +118,7 @@
             selecao.subtema = document.getElementById('subtema').value;
             if (!selecao.subtema) return alert("Selecione um subtema!");
             const btn = document.getElementById('btnGargalos');
-            btn.innerText = "IA ANALISANDO...";
+            btn.innerText = "PROCESSANDO...";
             btn.disabled = true;
 
             try {
@@ -125,66 +126,57 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Aja como orientador de monografia jurídica. Para o tema "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos jurídicos atuais. Retorne APENAS um JSON: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
+                        contents: [{ parts: [{ text: `Aja como orientador de monografia. Para o tema "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos polêmicos. Retorne APENAS um JSON: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
                     })
                 });
-
                 const data = await response.json();
                 let cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
                 const obj = JSON.parse(cleanText);
-
                 const container = document.getElementById('gargalos-container');
                 container.innerHTML = '';
                 obj.gargalos.forEach(g => {
-                    container.innerHTML += `
-                        <div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)">
-                            <h4 style="color:var(--primary); margin-bottom:5px;">${g.titulo}</h4>
-                            <p style="font-size:11px; color:var(--text-dim);">${g.descricao}</p>
-                        </div>
-                    `;
+                    container.innerHTML += `<div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)"><h4 style="color:var(--primary); margin-bottom:5px; font-weight:800;">${g.titulo}</h4><p style="font-size:11px; color:var(--text-dim);">${g.descricao}</p></div>`;
                 });
-
                 document.getElementById('section-3').style.display = 'block';
                 window.scrollTo({ top: document.getElementById('section-3').offsetTop - 50, behavior: 'smooth' });
-            } catch (e) {
-                alert("Erro ao conectar com a IA. Aguarde um momento.");
-            } finally {
-                btn.innerText = "Mapear Gargalos Jurídicos";
-                btn.disabled = false;
-            }
+            } catch (e) { alert("Erro na análise."); } finally { btn.innerText = "Mapear Conflitos Jurídicos"; btn.disabled = false; }
         }
 
         function selectGargalo(titulo, el) {
             selecao.gargalo = titulo;
             document.querySelectorAll('#section-3 .selectable-card').forEach(c => c.classList.remove('card-selected'));
             el.classList.add('card-selected');
-            document.getElementById('contexto-final').innerText = `${selecao.area} > ${selecao.subtema} > ${titulo}`;
+            document.getElementById('contexto-final').innerText = `FOCO: ${selecao.area} > ${selecao.subtema} > ${titulo}`;
             document.getElementById('section-4').style.display = 'block';
             window.scrollTo({ top: document.getElementById('section-4').offsetTop - 50, behavior: 'smooth' });
         }
 
         async function finalizarEtapa() {
             const pergunta = document.getElementById('pergunta').value;
-            if(!pergunta) return alert("Escreva sua pergunta!");
+            if(!pergunta) return alert("Construa sua pergunta!");
             const output = document.getElementById('final-output');
             output.style.display = 'block';
-            output.innerHTML = `<p style="font-size:10px; color:var(--primary); font-weight:bold; animation: pulse 1s infinite;">VALIDANDO RELEVÂNCIA E MAPEANDO DOUTRINADORES...</p>`;
+            output.innerHTML = `<p style="font-size:11px; color:var(--primary); font-weight:800; letter-spacing:2px;">MAPEANDO AUTORES E VALIDANDO VIABILIDADE...</p>`;
             
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Com base em: "${pergunta}" (${selecao.gargalo}), faça: 1. Valide a viabilidade. 2. Liste 3 Autores 'Gigantes' e 3 'Secundários'. 3. Sugira uma hipótese inicial. Use cabeçalhos HTML.` }]}]
+                        contents: [{ parts: [{ text: `Com base em: "${pergunta}" (${selecao.gargalo}), gere um relatório. 
+                        USE APENAS MARKDOWN (### para títulos, ** para negrito). 
+                        NÃO use <html>, <body> ou <div>.
+                        1. Valide a viabilidade para 60-100 laudas. 
+                        2. Liste 3 Autores 'Gigantes' e 3 'Secundários'. 
+                        3. Sugira uma hipótese inicial.` }]}]
                     })
                 });
                 const data = await response.json();
-                output.innerHTML = marked.parse(data.candidates[0].content.parts[0].text);
-            } catch (e) {
-                output.innerText = "Erro ao gerar relatório final.";
-            } finally {
-                window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' });
-            }
+                let rawResp = data.candidates[0].content.parts[0].text;
+                // Limpeza extra: Remove qualquer tentativa da IA de enviar HTML completo
+                rawResp = rawResp.replace(/<!DOCTYPE html>|<html>|<\/html>|<body>|<\/body>|<head>|<\/head>|<meta.*?>|<title>.*?<\/title>/gi, '');
+                output.innerHTML = marked.parse(rawResp);
+            } catch (e) { output.innerText = "Erro ao gerar relatório."; } finally { window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' }); }
         }
     </script>
 </body>

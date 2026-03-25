@@ -97,6 +97,11 @@
         .checkbox-group { display: flex; flex-direction: column; gap: 10px; margin: 1rem 0; }
         .checkbox-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-dim); }
         .checkbox-item input { width: auto; }
+
+        .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+        .status-ok { background: var(--success); }
+        .status-error { background: var(--error); }
+        .status-warn { background: var(--warning); }
     </style>
 </head>
 <body>
@@ -105,12 +110,14 @@
         <div class="auth-card">
             <h1>EPM <span>—</span></h1>
             <p style="font-size: 10px; color: var(--text-dim); margin-bottom: 30px; letter-spacing: 4px; font-weight: 900;">ACESSO RESTRITO</p>
-            <div class="info-box" style="margin-bottom: 1rem;">
-                Use sua própria chave Gemini API (gratuita em aistudio.google.com/app/apikey)
+            <div class="info-box" style="margin-bottom: 1rem; text-align: left;">
+                <strong>Modelos disponíveis:</strong><br>
+                <span id="model-status-flash"><span class="status-indicator status-warn"></span>gemini-2.5-flash</span><br>
+                <span id="model-status-pro"><span class="status-indicator status-warn"></span>gemini-2.5-pro</span>
             </div>
             <input type="password" id="modalKey" placeholder="Cole sua Gemini API Key aqui">
             <button class="btn-primary" onclick="verificarKey()" id="btnVerify">Validar e Acessar</button>
-            <p id="auth-error" style="color:var(--error); font-size: 10px; margin-top: 20px; display: none; font-weight: 900;">⚠️ CHAVE INVÁLIDA OU MODELO INDISPONÍVEL</p>
+            <p id="auth-error" style="color:var(--error); font-size: 10px; margin-top: 20px; display: none; font-weight: 900;"></p>
             <div class="progress-bar" id="auth-progress" style="display: none;"><div class="progress-fill" id="auth-progress-fill"></div></div>
         </div>
     </div>
@@ -124,7 +131,6 @@
             <div style="color: var(--success); font-size: 9px; font-weight: 900; border: 1.5px solid var(--success); padding: 8px 16px; border-radius: 50px;">● AMBIENTE SEGURO</div>
         </header>
 
-        <!-- ETAPA 1: Definição da Grande Área e do Tema -->
         <section id="section-1" class="card-step">
             <span class="step-label">01. Definição da Grande Área e do Tema</span>
             <div class="info-box">
@@ -142,7 +148,6 @@
             </div>
         </section>
 
-        <!-- ETAPA 1 (continuação): Afunilamento do Tema -->
         <section id="section-1b" class="card-step" style="opacity: 0.1; pointer-events: none; transition: 0.6s;">
             <span class="step-label">01b. Afunilamento do Tema</span>
             <div class="info-box">
@@ -173,7 +178,6 @@
             <div id="gargalos-error"></div>
         </section>
 
-        <!-- ETAPA 2: Exercício de Problematização -->
         <section id="section-2" class="card-step" style="display: none;">
             <span class="step-label" style="color: var(--primary);">02. Exercício de Problematização</span>
             <div id="contexto-final" style="font-size: 10px; color: var(--primary); font-weight: 900; margin-bottom: 15px; text-transform: uppercase; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px;"></div>
@@ -206,7 +210,6 @@
             <button class="btn-success" onclick="finalizarEtapa()" id="btnFinal" disabled>Validar e Gerar Relatório</button>
         </section>
 
-        <!-- ETAPA 3: Levantamento Preliminar -->
         <section id="section-3" class="card-step" style="display: none;">
             <span class="step-label" style="color: var(--success);">03. Levantamento Preliminar</span>
             <div id="final-output" class="prose-result" style="display: block; border: none; padding: 0; background: transparent;"></div>
@@ -222,29 +225,58 @@
     <div id="cache-indicator" class="cache-indicator">💾 Dados em cache local</div>
 
     <script>
-        // CONFIGURAÇÃO CORRIGIDA
+        // CONFIGURAÇÃO - Múltiplos modelos para fallback
         const CONFIG = {
-            MODEL: 'gemini-2.5-flash', // CORRETO: gemini-2.5-flash (não 2.5)
+            MODELS: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash'],
             API_BASE: 'https://generativelanguage.googleapis.com/v1/models',
             MAX_RETRIES: 3,
-            RETRY_DELAY: 2000,
-            RATE_LIMIT_DELAY: 1000, // 1 segundo entre chamadas
-            CACHE_KEY: 'epm_monografia_cache'
+            RETRY_DELAY: 3000,
+            RATE_LIMIT_DELAY: 1500,
+            CACHE_KEY: 'epm_monografia_cache_v2'
         };
 
         let apiKey = "";
+        let workingModel = null;
         let selecao = { area: '', subtema: '', gargalo: '', perguntas: [] };
         let lastRequestTime = 0;
-        let requestQueue = [];
 
-        // Sistema de Cache Local
+        // Extrator de JSON robusto (lida com IA "falante")
+        function extractJSON(text) {
+            // Remove markdown code blocks
+            let clean = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+            
+            // Tenta encontrar JSON entre chaves
+            const match = clean.match(/\{[\s\S]*\}/);
+            if (match) {
+                try {
+                    return JSON.parse(match[0]);
+                } catch (e) {
+                    // Tenta corrigir aspas escapadas ou quebras
+                    const fixed = match[0]
+                        .replace(/,\s*}/g, '}') // Remove trailing commas
+                        .replace(/,\s*]/g, ']')
+                        .replace(/\n/g, ' ')
+                        .replace(/\r/g, ' ');
+                    return JSON.parse(fixed);
+                }
+            }
+            
+            // Se não achou JSON, tenta parse direto
+            try {
+                return JSON.parse(clean);
+            } catch (e) {
+                throw new Error('JSON não encontrado na resposta. IA retornou: ' + text.substring(0, 100));
+            }
+        }
+
+        // Cache
         const Cache = {
             get(key) {
                 try {
                     const data = localStorage.getItem(CONFIG.CACHE_KEY + '_' + key);
                     if (!data) return null;
                     const parsed = JSON.parse(data);
-                    if (Date.now() - parsed.timestamp > 3600000) { // 1 hora
+                    if (Date.now() - parsed.timestamp > 3600000) {
                         localStorage.removeItem(CONFIG.CACHE_KEY + '_' + key);
                         return null;
                     }
@@ -258,16 +290,10 @@
                         value: value
                     }));
                     document.getElementById('cache-indicator').classList.add('active');
-                } catch (e) { console.warn('Cache failed:', e); }
-            },
-            clear() {
-                Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith(CONFIG.CACHE_KEY)) localStorage.removeItem(key);
-                });
+                } catch (e) {}
             }
         };
 
-        // Rate Limiter
         async function rateLimit() {
             const now = Date.now();
             const timeSinceLastRequest = now - lastRequestTime;
@@ -277,65 +303,84 @@
             lastRequestTime = Date.now();
         }
 
-        // API Client com Retry e Error Handling
-        async function callGemini(prompt, temperature = 0.7) {
+        // API com fallback de modelo
+        async function callGemini(prompt, temperature = 0.7, forceModel = null) {
             await rateLimit();
             
             const cacheKey = btoa(prompt).slice(0, 50);
             const cached = Cache.get(cacheKey);
             if (cached) return cached;
 
+            const modelsToTry = forceModel ? [forceModel] : (workingModel ? [workingModel] : CONFIG.MODELS);
             let lastError;
-            
-            for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
-                try {
-                    const response = await fetch(`${CONFIG.API_BASE}/${CONFIG.MODEL}:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            generationConfig: { temperature: temperature, maxOutputTokens: 2048 }
-                        })
-                    });
 
-                    if (response.status === 503) {
-                        throw new Error('SERVIÇO_INDISPONÍVEL');
-                    }
-                    if (response.status === 429) {
-                        throw new Error('LIMITE_EXCEDIDO');
-                    }
-                    if (response.status === 400) {
-                        const err = await response.json();
-                        throw new Error(`MODELO_INVÁLIDO: ${err.error?.message || 'Verifique se o modelo está correto'}`);
-                    }
+            for (const model of modelsToTry) {
+                for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
+                    try {
+                        console.log(`Tentando ${model}, tentativa ${attempt}...`);
+                        
+                        const response = await fetch(`${CONFIG.API_BASE}/${model}:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: prompt }] }],
+                                generationConfig: { 
+                                    temperature: temperature, 
+                                    maxOutputTokens: 2048,
+                                    topP: 0.8,
+                                    topK: 40
+                                }
+                            })
+                        });
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP_${response.status}`);
-                    }
+                        if (response.status === 503) {
+                            console.warn(`503 no ${model}, tentando novamente...`);
+                            await new Promise(r => setTimeout(r, attempt * CONFIG.RETRY_DELAY));
+                            continue;
+                        }
+                        
+                        if (response.status === 429) {
+                            console.warn(`Rate limit no ${model}, aguardando...`);
+                            await new Promise(r => setTimeout(r, 60000));
+                            continue;
+                        }
 
-                    const data = await response.json();
-                    if (!data.candidates || !data.candidates[0]) {
-                        throw new Error('RESPOSTA_VAZIA');
-                    }
+                        if (!response.ok) {
+                            const err = await response.json();
+                            throw new Error(`${response.status}: ${err.error?.message || 'Unknown'}`);
+                        }
 
-                    const text = data.candidates[0].content.parts[0].text;
-                    Cache.set(cacheKey, text);
-                    return text;
+                        const data = await response.json();
+                        if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                            throw new Error('Resposta vazia da API');
+                        }
 
-                } catch (error) {
-                    lastError = error;
-                    console.warn(`Tentativa ${attempt} falhou:`, error.message);
-                    
-                    if (error.message === 'SERVIÇO_INDISPONÍVEL' || error.message === 'LIMITE_EXCEDIDO') {
-                        const delay = attempt * CONFIG.RETRY_DELAY;
-                        await new Promise(r => setTimeout(r, delay));
-                    } else if (error.message.includes('MODELO_INVÁLIDO')) {
-                        throw error; // Não retry em erro de modelo
+                        const text = data.candidates[0].content.parts[0].text;
+                        
+                        // Se funcionou, salva o modelo working
+                        if (!workingModel) {
+                            workingModel = model;
+                            document.getElementById(`model-status-${model.split('-')[2]}`).innerHTML = 
+                                `<span class="status-indicator status-ok"></span>${model} ✓`;
+                        }
+                        
+                        Cache.set(cacheKey, text);
+                        return text;
+
+                    } catch (error) {
+                        lastError = error;
+                        console.warn(`Erro ${model} tentativa ${attempt}:`, error.message);
+                        
+                        if (error.message.includes('503')) {
+                            await new Promise(r => setTimeout(r, attempt * CONFIG.RETRY_DELAY));
+                        } else {
+                            break; // Erro não-recuperável, tenta próximo modelo
+                        }
                     }
                 }
             }
             
-            throw lastError;
+            throw new Error(`Todos os modelos falharam. Último erro: ${lastError?.message}`);
         }
 
         function cleanAndParse(text) {
@@ -348,50 +393,53 @@
                 .replace(/\n- (.*)/g, '<li>$1</li>')
                 .replace(/\n/g, '<p></p>')
                 .replace(/<p><\/p><li>/g, '<ul><li>')
-                .replace(/<\/li><p><\/p>/g, '</li></ul>')
-                .replace(/<\/ul><ul>/g, '');
+                .replace(/<\/li><p><\/p>/g, '</li></ul>');
         }
 
         async function verificarKey() {
             const keyInput = document.getElementById('modalKey').value.trim();
             const btn = document.getElementById('btnVerify');
-            const progress = document.getElementById('auth-progress');
-            const progressFill = document.getElementById('auth-progress-fill');
+            const errorDiv = document.getElementById('auth-error');
             
             if (!keyInput) return;
             
             btn.disabled = true;
-            btn.innerText = "VERIFICANDO...";
-            progress.style.display = 'block';
-            progressFill.style.width = '30%';
+            btn.innerText = "TESTANDO MODELOS...";
+            errorDiv.style.display = 'none';
 
-            try {
-                // Testa com um ping simples
-                const response = await fetch(`${CONFIG.API_BASE}/${CONFIG.MODEL}:generateContent?key=${keyInput}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas 'OK'" }] }] })
-                });
+            // Testa todos os modelos em paralelo
+            const tests = CONFIG.MODELS.map(async (model) => {
+                try {
+                    const res = await fetch(`${CONFIG.API_BASE}/${model}:generateContent?key=${keyInput}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas: OK" }] }] })
+                    });
+                    
+                    if (res.ok) {
+                        document.getElementById(`model-status-${model.split('-')[2]}`).innerHTML = 
+                            `<span class="status-indicator status-ok"></span>${model} ✓`;
+                        return model;
+                    }
+                } catch (e) {}
+                document.getElementById(`model-status-${model.split('-')[2]}`).innerHTML = 
+                    `<span class="status-indicator status-error"></span>${model} ✗`;
+                return null;
+            });
 
-                progressFill.style.width = '70%';
+            const results = await Promise.all(tests);
+            const working = results.find(r => r !== null);
 
-                if (response.ok) {
-                    apiKey = keyInput;
-                    progressFill.style.width = '100%';
-                    setTimeout(() => {
-                        document.getElementById('auth-modal').style.display = 'none';
-                        document.getElementById('main-content').classList.remove('locked');
-                    }, 300);
-                } else {
-                    const err = await response.json();
-                    throw new Error(err.error?.message || 'Chave inválida');
-                }
-            } catch (e) {
-                document.getElementById('auth-error').style.display = 'block';
-                document.getElementById('auth-error').innerText = '⚠️ ' + (e.message.includes('models') ? 'MODELO NÃO ENCONTRADO. Use gemini-2.5-flash' : 'CHAVE INVÁLIDA OU API INDISPONÍVEL');
+            if (working) {
+                apiKey = keyInput;
+                workingModel = working;
+                document.getElementById('auth-modal').style.display = 'none';
+                document.getElementById('main-content').classList.remove('locked');
+            } else {
+                errorDiv.innerText = '⚠️ Nenhum modelo disponível. Verifique sua chave API ou tente novamente em alguns minutos.';
+                errorDiv.style.display = 'block';
                 btn.disabled = false;
                 btn.innerText = "Validar e Acessar";
-                progress.style.display = 'none';
             }
         }
 
@@ -430,26 +478,33 @@
             errorDiv.innerHTML = '';
 
             try {
-                const prompt = `Aja como orientador jurídico sênior. Para o tema "${selecao.area}: ${selecao.subtema}", identifique EXATAMENTE 3 gargalos polêmicos atuais no Brasil (2024-2025) que sejam relevantes para uma monografia de pós-graduação em direito. 
-                
-Para cada gargalo, forneça:
-1. Título curto e impactante
-2. Descrição de 2-3 linhas explicando a controvérsia
-3. Por que é relevante academicamente
+                // Prompt mais rigoroso para forçar JSON puro
+                const prompt = `RETORNE APENAS JSON, SEM TEXTO ADICIONAL, SEM MARKDOWN, SEM EXPLICAÇÕES.
 
-Retorne APENAS um JSON válido no formato:
-{"gargalos": [{"titulo": "...", "descricao": "...", "relevancia": "..."}]}`;
+Tema: "${selecao.area}: ${selecao.subtema}"
+Tarefa: Identificar 3 gargalos jurídicos polêmicos no Brasil (2024-2025) relevantes para monografia de pós-graduação.
 
-                const text = await callGemini(prompt, 0.8);
-                let cleanText = text.replace(/```json|```/g, '').trim();
-                const obj = JSON.parse(cleanText);
+FORMATO OBRIGATÓRIO:
+{"gargalos":[{"titulo":"Título curto","descricao":"2-3 linhas","relevancia":"Por que é acadêmico importante"}]}
+
+SUA RESPOSTA DEVE COMEÇAR COM { E TERMINAR COM }`;
+
+                const text = await callGemini(prompt, 0.1); // Temperatura baixa = mais previsível
                 
+                console.log('Resposta bruta:', text);
+                
+                const obj = extractJSON(text);
+                
+                if (!obj.gargalos || !Array.isArray(obj.gargalos) || obj.gargalos.length !== 3) {
+                    throw new Error('Estrutura JSON inválida ou incompleta');
+                }
+
                 const container = document.getElementById('gargalos-container');
                 container.innerHTML = '';
                 
                 obj.gargalos.forEach((g, idx) => {
                     container.innerHTML += `
-                        <div class="selectable-card" onclick="selectGargalo('${g.titulo}', this)">
+                        <div class="selectable-card" onclick="selectGargalo('${g.titulo.replace(/'/g, "\\'")}', this)">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <h4 style="color:var(--primary); font-weight:800; margin-bottom: 8px;">${idx + 1}. ${g.titulo}</h4>
                                 <span style="font-size: 10px; color: var(--success); border: 1px solid var(--success); padding: 2px 8px; border-radius: 10px;">Selecionar</span>
@@ -468,16 +523,84 @@ Retorne APENAS um JSON válido no formato:
                 }, 100);
 
             } catch (e) {
-                console.error(e);
-                let msg = 'Erro ao consultar IA. ';
-                if (e.message.includes('SERVIÇO_INDISPONÍVEL')) msg += 'Serviço temporariamente indisponível. Tente novamente em alguns segundos.';
-                else if (e.message.includes('LIMITE_EXCEDIDO')) msg += 'Limite de requisições excedido. Aguarde 1 minuto.';
-                else if (e.message.includes('MODELO_INVÁLIDO')) msg += 'Modelo incorreto configurado. Contate o administrador.';
-                else msg += 'Verifique sua conexão e tente novamente.';
+                console.error('Erro completo:', e);
+                let msg = 'Erro: ';
+                
+                if (e.message.includes('JSON')) {
+                    msg += 'A IA não retornou no formato esperado. Tentando novamente com modelo alternativo...';
+                    // Tenta novamente com pro
+                    setTimeout(() => gerarGargalosRetry(), 1000);
+                } else if (e.message.includes('503')) {
+                    msg += 'Serviço sobrecarregado. Aguarde 30 segundos e tente novamente.';
+                } else if (e.message.includes('429')) {
+                    msg += 'Muitas requisições. Aguarde 1 minuto.';
+                } else {
+                    msg += e.message;
+                }
                 
                 errorDiv.innerHTML = `
                     <div class="error-box">
                         ${msg}
+                        ${!e.message.includes('JSON') ? '<button class="retry-btn" onclick="gerarGargalos()">Tentar Novamente</button>' : ''}
+                    </div>
+                `;
+            } finally {
+                if (!errorDiv.innerHTML.includes('Tentando novamente')) {
+                    btn.disabled = false;
+                    btn.innerText = "Mapear Gargalos Jurídicos";
+                }
+            }
+        }
+
+        async function gerarGargalosRetry() {
+            // Fallback manual se o JSON falhar
+            const btn = document.getElementById('btnGargalos');
+            const errorDiv = document.getElementById('gargalos-error');
+            
+            try {
+                const prompt = `Liste 3 gargalos jurídicos sobre "${selecao.area}: ${selecao.subtema}" em formato simples:
+
+1. [Título] - [Descrição breve] - [Relevância]
+2. [Título] - [Descrição breve] - [Relevância]  
+3. [Título] - [Descrição breve] - [Relevância]
+
+Use exatamente este formato, um por linha.`;
+                
+                const text = await callGemini(prompt, 0.1, 'gemini-2.5-pro');
+                
+                // Parse manual do formato simples
+                const lines = text.split('\n').filter(l => l.trim().match(/^\d\./));
+                const gargalos = lines.map(line => {
+                    const parts = line.replace(/^\d\.\s*/, '').split(' - ');
+                    return {
+                        titulo: parts[0] || 'Tema ' + (lines.indexOf(line) + 1),
+                        descricao: parts[1] || 'Descrição não disponível',
+                        relevancia: parts[2] || 'Relevante para estudos'
+                    };
+                });
+
+                if (gargalos.length === 0) throw new Error('Não foi possível extrair dados');
+
+                const container = document.getElementById('gargalos-container');
+                container.innerHTML = '';
+                
+                gargalos.forEach((g, idx) => {
+                    container.innerHTML += `
+                        <div class="selectable-card" onclick="selectGargalo('${g.titulo.replace(/'/g, "\\'")}', this)">
+                            <h4 style="color:var(--primary); font-weight:800; margin-bottom: 8px;">${idx + 1}. ${g.titulo}</h4>
+                            <p style="font-size:12px; color:var(--text); margin-bottom: 8px;">${g.descricao}</p>
+                            <p style="font-size:10px; color:var(--text-dim);">${g.relevancia}</p>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('section-2').style.display = 'block';
+                errorDiv.innerHTML = '<div class="warning-box">Usando formato alternativo devido a instabilidade da API</div>';
+                
+            } catch (e) {
+                errorDiv.innerHTML = `
+                    <div class="error-box">
+                        Falha no fallback. Erro: ${e.message}
                         <button class="retry-btn" onclick="gerarGargalos()">Tentar Novamente</button>
                     </div>
                 `;
@@ -556,45 +679,42 @@ Retorne APENAS um JSON válido no formato:
 CONTEXTO:
 - Área: ${selecao.area}
 - Subtema: ${selecao.subtema}
-- Gargalo selecionado: ${selecao.gargalo}
-- Pergunta de pesquisa: "${perguntaDefinitiva}"
-- Perguntas alternativas consideradas: ${selecao.perguntas.join('; ')}
+- Gargalo: ${selecao.gargalo}
+- Pergunta: "${perguntaDefinitiva}"
 
-Gere um relatório estruturado contendo:
+Gere relatório acadêmico:
 
 ### 1. Análise da Problematização
-Avalie se a pergunta de pesquisa atende aos critérios acadêmicos: é não-binária, viável, relevante e original?
+Avalie se a pergunta é não-binária, viável, relevante e original.
 
-### 2. Mapeamento de Autores Gigantes (Doutrinadores Principais)
-Liste 3 autores nacionais ou internacionais indispensáveis para o tema, com obra principal e por que são essenciais.
+### 2. Autores Gigantes (3 principais)
+Nome, obra principal, por que é essencial.
 
-### 3. Mapeamento de Autores Secundários (Atuais)
-Liste 3 autores mais recentes (últimos 5 anos) que trazem perspectivas contemporâneas.
+### 3. Autores Secundários (3 recentes)
+Nome, obra, contribuição atual.
 
-### 4. Intuição de Respostas (Hipóteses)
-Apresente 2-3 hipóteses plausíveis de resposta para a pergunta de pesquisa, com breve justificativa.
+### 4. Hipóteses (2-3 respostas plausíveis)
+Com breve justificativa.
 
-### 5. Sugestões de Strings de Busca
-Forneça 3 combinações de termos para pesquisa em bases como Google Scholar, SciELO e BDTD.
+### 5. Strings de Busca
+3 combinações para Google Scholar/SciELO.
 
-Use formatação markdown com **negritos** para ênfase.`;
+Use markdown com **negritos**.`;
 
                 const text = await callGemini(prompt, 0.6);
                 output.innerHTML = cleanAndParse(text);
                 
-                // Gera links de pesquisa
                 const queryBase = `${selecao.area} ${selecao.subtema} ${selecao.gargalo}`;
                 const queryEncoded = encodeURIComponent(queryBase);
                 const queryScholar = encodeURIComponent(`"${selecao.subtema}" AND "${selecao.gargalo}"`);
                 
                 document.getElementById('section-research').style.display = 'block';
                 document.getElementById('research-links').innerHTML = `
-                    <button class="btn-research" onclick="window.open('https://scholar.google.com.br/scholar?q=${queryScholar}', '_blank')">Google Scholar (Papers)</button>
-                    <button class="btn-research" onclick="window.open('https://search.scielo.org/?q=${queryEncoded}', '_blank')">SciELO (Artigos BR)</button>
-                    <button class="btn-research" onclick="window.open('https://bdtd.ibict.br/vufind/Search/Results?lookfor=${queryEncoded}', '_blank')">BDTD (Teses/Dissertações)</button>
-                    <button class="btn-research" onclick="window.open('https://oasisbr.ibict.br/vufind/Search/Results?lookfor=${queryEncoded}', '_blank')">Oasisbr (Repositórios)</button>
-                    <button class="btn-research" onclick="window.open('https://www.jusbrasil.com.br/jurisprudencia/busca?q=${queryEncoded}', '_blank')">JusBrasil (Jurisprudência)</button>
-                    <button class="btn-research" onclick="window.open('https://portal.stf.jus.br/jurisprudencia/listarJurisprudencia.asp?base=baseAcordaos&pesquisa=${queryEncoded}', '_blank')">STF (Jurisprudência)</button>
+                    <button class="btn-research" onclick="window.open('https://scholar.google.com.br/scholar?q=${queryScholar}', '_blank')">Google Scholar</button>
+                    <button class="btn-research" onclick="window.open('https://search.scielo.org/?q=${queryEncoded}', '_blank')">SciELO</button>
+                    <button class="btn-research" onclick="window.open('https://bdtd.ibict.br/vufind/Search/Results?lookfor=${queryEncoded}', '_blank')">BDTD</button>
+                    <button class="btn-research" onclick="window.open('https://oasisbr.ibict.br/vufind/Search/Results?lookfor=${queryEncoded}', '_blank')">Oasisbr</button>
+                    <button class="btn-research" onclick="window.open('https://www.jusbrasil.com.br/jurisprudencia/busca?q=${queryEncoded}', '_blank')">JusBrasil</button>
                 `;
 
                 window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' });
@@ -602,7 +722,7 @@ Use formatação markdown com **negritos** para ênfase.`;
             } catch (e) {
                 output.innerHTML = `
                     <div class="error-box">
-                        Erro ao gerar relatório: ${e.message.includes('LIMITE') ? 'Limite de requisições excedido. Aguarde 1 minuto e tente novamente.' : 'Serviço temporariamente indisponível.'}
+                        Erro: ${e.message.includes('503') ? 'API temporariamente indisponível. Tente em 1 minuto.' : e.message}
                         <button class="retry-btn" onclick="finalizarEtapa()">Tentar Novamente</button>
                     </div>
                 `;
@@ -612,12 +732,10 @@ Use formatação markdown com **negritos** para ênfase.`;
             }
         }
 
-        // Tecla Enter no input de API key
+        // Event listeners
         document.getElementById('modalKey')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') verificarKey();
         });
-
-        // Tecla Enter no input de pergunta
         document.getElementById('nova-pergunta')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') adicionarPergunta();
         });

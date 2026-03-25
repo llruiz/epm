@@ -3,99 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socratis-AI | Workflow de Monografia</title>
+    <title>EPM | Estruturador de Monografias</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f1f5f9; }
-        .card-select { @apply bg-slate-900 border border-slate-800 p-5 rounded-2xl cursor-pointer hover:border-sky-500 hover:bg-slate-800 transition-all shadow-lg; }
-        .card-selected { @apply border-sky-500 bg-sky-500/10 ring-2 ring-sky-500/20; }
-        .step-pill { @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest; }
-        ::-webkit-scrollbar { width: 5px; }
+        :root {
+            --bg-deep: #0a0f1d;
+            --accent-gold: #c5a47e;
+            --accent-blue: #38bdf8;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-deep); 
+            color: #e2e8f0; 
+            scroll-behavior: smooth;
+        }
+        .legal-title { font-family: 'Playfair Display', serif; }
+        
+        /* Estilização dos Boxes de Seleção */
+        .card-step {
+            @apply bg-slate-900/50 border-2 border-slate-800 p-6 rounded-2xl transition-all duration-300 shadow-xl;
+        }
+        .selectable-card {
+            @apply cursor-pointer border border-slate-700 bg-slate-800/40 p-5 rounded-xl transition-all relative overflow-hidden;
+        }
+        .selectable-card:hover {
+            @apply border-sky-500/50 bg-slate-800 shadow-[0_0_20px_rgba(56,189,248,0.1)];
+            transform: translateY(-2px);
+        }
+        .card-selected {
+            @apply border-sky-500 bg-sky-500/10 ring-2 ring-sky-500/20 shadow-[0_0_25px_rgba(56,189,248,0.15)];
+        }
+        .card-selected::after {
+            content: '✓';
+            @apply absolute top-3 right-3 text-sky-500 font-bold text-sm;
+        }
+
+        /* Botões Estilizados */
+        .btn-primary {
+            @apply w-full bg-sky-600 hover:bg-sky-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-sky-900/20 transition-all uppercase tracking-widest text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+        }
+        .btn-success {
+            @apply w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-900/20 transition-all uppercase tracking-widest text-xs cursor-pointer;
+        }
+
+        /* Inputs */
+        .input-legal {
+            @apply bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm w-full outline-none focus:border-sky-500 transition-all text-slate-200;
+        }
+
+        .step-indicator {
+            @apply flex items-center gap-2 mb-6;
+        }
+        .step-number {
+            @apply w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500;
+        }
+        .step-active .step-number {
+            @apply bg-sky-500 border-sky-400 text-white shadow-[0_0_10px_rgba(56,189,248,0.5)];
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-10">
+<body class="min-h-screen pb-20">
 
-    <div class="max-w-4xl mx-auto space-y-10">
-        <header class="flex justify-between items-end border-b border-slate-800 pb-8">
-            <div>
-                <h1 class="text-4xl font-black text-white tracking-tighter">Socratis<span class="text-sky-500">AI</span></h1>
-                <p class="text-slate-500 text-sm font-medium">Dashboard de Delimitação de Tema</p>
+    <div class="max-w-4xl mx-auto px-6">
+        
+        <header class="py-12 flex justify-between items-center border-b border-slate-800 mb-12">
+            <div class="space-y-1">
+                <h1 class="text-5xl font-black legal-title tracking-tighter text-white">
+                    EPM <span class="text-sky-500 text-3xl align-top">—</span> 
+                    <span class="text-slate-400 text-4xl">Monografia</span>
+                </h1>
+                <p class="text-slate-500 text-xs font-semibold uppercase tracking-[0.3em]">Escola de Pensamento Monográfico</p>
             </div>
-            <div class="flex flex-col items-end gap-2">
-                <input type="password" id="apiKey" placeholder="Nova Gemini API Key" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs w-64 outline-none focus:border-sky-500 transition-all">
-                <span class="text-[9px] text-slate-600 uppercase font-bold tracking-widest">Motor: Gemini 2.0 Flash (Stable)</span>
+            <div class="text-right space-y-3">
+                <input type="password" id="apiKey" placeholder="Gemini API Key" class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 text-[10px] w-56 outline-none focus:border-sky-500 transition-all text-sky-400 text-center">
+                <div class="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Motor: Gemini 2.5 Flash Stable</div>
             </div>
         </header>
 
-        <section id="section-1" class="space-y-6">
-            <div class="flex items-center gap-3">
-                <span class="step-pill bg-sky-600 text-white">Etapa 01</span>
-                <h2 class="text-xl font-bold">Grande Área</h2>
+        <section id="section-1" class="card-step mb-8">
+            <div class="step-indicator step-active">
+                <span class="step-number">01</span>
+                <h2 class="text-sm font-black uppercase tracking-widest text-slate-300">Definição da Grande Área</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="card-select" onclick="selectArea('Direito de Família', this)">
-                    <h3 class="font-bold text-lg mb-1">Direito de Família</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">Foco em relações existenciais, novas entidades familiares e parentalidade.</p>
+                <div class="selectable-card" onclick="selectArea('Direito de Família', this)">
+                    <h3 class="font-extrabold text-white mb-2">Direito de Família</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Estudo das relações existenciais, novas entidades familiares e parentalidade contemporânea.</p>
                 </div>
-                <div class="card-select" onclick="selectArea('Direito das Sucessões', this)">
-                    <h3 class="font-bold text-lg mb-1">Direito das Sucessões</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">Foco em transmissão patrimonial, autonomia da vontade e herança digital.</p>
+                <div class="selectable-card" onclick="selectArea('Direito das Sucessões', this)">
+                    <h3 class="font-extrabold text-white mb-2">Direito das Sucessões</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Análise da transmissão patrimonial pós-morte, autonomia da vontade e herança digital.</p>
                 </div>
             </div>
         </section>
 
-        <section id="section-2" class="space-y-6 opacity-30 pointer-events-none transition-opacity duration-500">
-            <div class="flex items-center gap-3">
-                <span class="step-pill bg-slate-800 text-slate-400">Etapa 02</span>
-                <h2 class="text-xl font-bold">Subtema Específico</h2>
+        <section id="section-2" class="card-step mb-8 opacity-20 pointer-events-none transition-all duration-700">
+            <div class="step-indicator" id="ind-2">
+                <span class="step-number">02</span>
+                <h2 class="text-sm font-black uppercase tracking-widest text-slate-300">Afunilamento do Tema</h2>
             </div>
-            <select id="subtema" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-sky-500 appearance-none font-medium">
-                <option value="">Aguardando seleção da área...</option>
-            </select>
-            <button onclick="gerarGargalos()" id="btnGargalos" class="w-full bg-sky-600 hover:bg-sky-500 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all">
-                Mapear Gargalos Doutrinários
-            </button>
-        </section>
-
-        <section id="section-3" class="space-y-6 hidden">
-            <div class="flex items-center gap-3">
-                <span class="step-pill bg-amber-500 text-white">IA Sugestão</span>
-                <h2 class="text-xl font-bold">Escolha um Conflito Relevante</h2>
-            </div>
-            <div id="gargalos-container" class="grid grid-cols-1 gap-3">
+            <div class="space-y-6">
+                <div class="relative">
+                    <select id="subtema" class="input-legal appearance-none cursor-pointer pr-10 font-semibold">
+                        <option value="">Aguardando seleção da área...</option>
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">▼</div>
                 </div>
-        </section>
-
-        <section id="section-4" class="space-y-6 hidden">
-            <div class="flex items-center gap-3">
-                <span class="step-pill bg-emerald-500 text-white">Etapa 03</span>
-                <h2 class="text-xl font-bold">Problematização Final</h2>
-            </div>
-            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 space-y-4">
-                <p id="contexto-final" class="text-[10px] text-sky-500 font-black uppercase tracking-[0.2em]"></p>
-                <p class="text-xs text-slate-400 italic">Agora é com você. Transforme o gargalo acima em uma pergunta de pesquisa não-binária (que exija fundamentação).</p>
-                <textarea id="pergunta" rows="3" placeholder="Ex: De que maneira a multiparentalidade impacta o dever de prestar alimentos sem gerar enriquecimento sem causa?" 
-                    class="w-full bg-black/40 border border-slate-800 p-5 rounded-2xl outline-none focus:border-emerald-500 text-sm"></textarea>
-                <button onclick="finalizarEtapa()" id="btnFinal" class="bg-emerald-600 hover:bg-emerald-500 w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all">
-                    Validar e Gerar Referências
+                <button onclick="gerarGargalos()" id="btnGargalos" class="btn-primary">
+                    Mapear Gargalos Jurídicos
                 </button>
             </div>
         </section>
 
-        <div id="final-output" class="hidden p-8 bg-sky-500/5 border border-sky-500/20 rounded-3xl text-slate-300 text-sm leading-relaxed whitespace-pre-wrap"></div>
+        <section id="section-3" class="card-step mb-8 hidden">
+            <div class="step-indicator step-active">
+                <span class="step-number">IA</span>
+                <h2 class="text-sm font-black uppercase tracking-widest text-sky-400">Gargalos Sugeridos (Escolha Um)</h2>
+            </div>
+            <div id="gargalos-container" class="space-y-3">
+                </div>
+        </section>
+
+        <section id="section-4" class="card-step mb-8 hidden">
+            <div class="step-indicator" id="ind-4">
+                <span class="step-number">03</span>
+                <h2 class="text-sm font-black uppercase tracking-widest text-slate-300">Exercício de Problematização</h2>
+            </div>
+            <div class="space-y-5">
+                <div class="p-3 bg-black/30 rounded-lg border-l-4 border-sky-500">
+                    <p id="contexto-final" class="text-[10px] font-bold text-sky-500 uppercase tracking-widest"></p>
+                </div>
+                <textarea id="pergunta" rows="3" placeholder="Construa sua Pergunta de Pesquisa (Não-Binária)..." 
+                    class="input-legal focus:border-emerald-500 resize-none"></textarea>
+                <button onclick="finalizarEtapa()" id="btnFinal" class="btn-success">
+                    Validar Tema e Gerar Referências
+                </button>
+            </div>
+        </section>
+
+        <div id="final-output" class="hidden p-10 bg-slate-900 border-2 border-slate-800 rounded-3xl text-slate-300 text-sm leading-relaxed shadow-2xl"></div>
+
     </div>
 
     <script>
         let selecao = { area: '', subtema: '', gargalo: '' };
 
-        const TEMAS_FAMILIA = ["Princípios Constitucionais", "Polissemia e Entidades Familiares", "Casamento e Validade", "Eficácia do Casamento", "Autonomia Privada", "Regime de Bens", "Divórcio e Partilha", "Responsabilidade Civil", "Fraude na Família", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda e Convivência", "Poder Familiar"];
-        const TEMAS_SUCESSOES = ["Direito das Sucessões (Evolução)", "Abertura da Sucessão (Saisine)", "Vocação Hereditária", "Sucessão Legítima", "Sucessão do Cônjuge/Companheiro", "Herança Digital", "Sucessão Testamentária", "Inventário e Partilha", "Indignidade e Deserdação"];
+        const TEMAS_FAMILIA = ["Princípios Constitucionais", "Polissemia e Entidades Familiares", "Casamento e Validade", "Eficácia do Casamento", "Autonomia Privada", "Regime de Bens", "Divórcio e Partilha", "Responsabilidade Civil", "Fraude na Família", "União Estável", "Multiparentalidade", "Alienação Parental", "Guarda e Convivência", "Poder Familiar", "Reprodução Assistida e Biodireito", "Mediação e Constelação Familiar"];
+        const TEMAS_SUCESSOES = ["Direito das Sucessões (Evolução)", "Abertura da Sucessão (Saisine)", "Vocação Hereditária", "Sucessão Legítima", "Sucessão do Cônjuge/Companheiro", "Herança Digital", "Sucessão Testamentária", "Inventário e Partilha", "Indignidade e Deserdação", "Petição de Herança"];
 
         function selectArea(area, el) {
             selecao.area = area;
-            document.querySelectorAll('#section-1 .card-select').forEach(c => c.classList.remove('card-selected'));
+            document.querySelectorAll('#section-1 .selectable-card').forEach(c => c.classList.remove('card-selected'));
             el.classList.add('card-selected');
             
             const select = document.getElementById('subtema');
@@ -104,33 +166,34 @@
             lista.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
             
             const s2 = document.getElementById('section-2');
-            s2.classList.remove('opacity-30', 'pointer-events-none');
+            s2.classList.remove('opacity-20', 'pointer-events-none');
+            document.getElementById('ind-2').classList.add('step-active');
             window.scrollTo({ top: s2.offsetTop - 50, behavior: 'smooth' });
         }
 
         async function gerarGargalos() {
             selecao.subtema = document.getElementById('subtema').value;
             const key = document.getElementById('apiKey').value.trim();
-            if (!selecao.subtema || !key) { alert("Selecione o subtema e insira sua nova API Key."); return; }
+            if (!selecao.subtema || !key) return alert("Por favor, forneça o subtema e a sua API Key.");
 
             const btn = document.getElementById('btnGargalos');
-            btn.innerText = "IA ANALISANDO DOUTRINA...";
+            btn.innerText = "Aguarde, mapeando controvérsias...";
             btn.disabled = true;
 
             try {
-                // Endpoint v1 Estável para 2026
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Aja como orientador de monografia jurídica. Para o tema "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos/conflitos jurídicos atuais e polêmicos. Retorne APENAS um JSON puro (sem markdown) no formato: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
+                        contents: [{ parts: [{ text: `Aja como orientador de monografia jurídica. Para o tema "${selecao.area}: ${selecao.subtema}", identifique 3 gargalos/conflitos jurídicos atuais e polêmicos. Retorne APENAS um JSON puro no formato: {"gargalos": [{"titulo": "...", "descricao": "..."}]}` }]}]
                     })
                 });
 
+                if (response.status === 429) throw new Error("Limite atingido. Aguarde 60s.");
+
                 const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-                
-                // Limpa o texto da IA caso ela mande markdown ```json
+                if (!data.candidates || !data.candidates[0]) throw new Error("Erro na API.");
+
                 let cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
                 const obj = JSON.parse(cleanText);
 
@@ -138,9 +201,9 @@
                 container.innerHTML = '';
                 obj.gargalos.forEach(g => {
                     container.innerHTML += `
-                        <div class="card-select text-left group" onclick="selectGargalo('${g.titulo}', this)">
-                            <h4 class="font-bold text-sky-400 group-hover:text-sky-300">${g.titulo}</h4>
-                            <p class="text-xs text-slate-400 mt-1">${g.descricao}</p>
+                        <div class="selectable-card text-left group" onclick="selectGargalo('${g.titulo}', this)">
+                            <h4 class="font-bold text-sky-400 group-hover:text-sky-300 text-sm">${g.titulo}</h4>
+                            <p class="text-[11px] text-slate-500 mt-1 leading-normal">${g.descricao}</p>
                         </div>
                     `;
                 });
@@ -157,11 +220,12 @@
 
         function selectGargalo(titulo, el) {
             selecao.gargalo = titulo;
-            document.querySelectorAll('#section-3 .card-select').forEach(c => c.classList.remove('card-selected'));
+            document.querySelectorAll('#section-3 .selectable-card').forEach(c => c.classList.remove('card-selected'));
             el.classList.add('card-selected');
             
             document.getElementById('contexto-final').innerText = `${selecao.area} > ${selecao.subtema} > ${titulo}`;
             document.getElementById('section-4').classList.remove('hidden');
+            document.getElementById('ind-4').classList.add('step-active');
             window.scrollTo({ top: document.getElementById('section-4').offsetTop - 50, behavior: 'smooth' });
         }
 
@@ -174,23 +238,34 @@
             if(!pergunta) return alert("Escreva sua pergunta de pesquisa!");
 
             output.classList.remove('hidden');
-            output.innerHTML = `<div class="animate-pulse">Validando problema e mapeando autores clássicos e modernos...</div>`;
+            output.innerHTML = `<div class="animate-pulse flex items-center gap-3 text-sky-400">
+                <span class="w-2 h-2 rounded-full bg-sky-500"></span> 
+                Validando relevância e mapeando autores 'gigantes'...
+            </div>`;
             btn.disabled = true;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${key}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Com base no problema: "${pergunta}" (Contexto: ${selecao.gargalo}), faça: 1. Valide se a pergunta não é binária. 2. Liste 3 Autores 'Gigantes' e 3 'Secundários' para este tema específico. 3. Sugira uma hipótese inicial. Responda em formato de relatório acadêmico.` }]}]
+                        contents: [{ parts: [{ text: `Com base no problema: "${pergunta}" (Contexto: ${selecao.gargalo}), realize o Levantamento Preliminar: 1. Valide a viabilidade para 60-100 laudas. 2. Liste 3 Autores 'Gigantes' (Clássicos) e 3 'Secundários' (Modernos). 3. Formule uma hipótese de pesquisa sofisticada. Responda como um relatório de orientação acadêmica em português.` }]}]
                     })
                 });
+
+                if (response.status === 429) throw new Error("Muitas requisições. Aguarde 1 minuto.");
+
                 const data = await response.json();
-                output.innerText = data.candidates[0].content.parts[0].text;
+                if (data.candidates && data.candidates[0]) {
+                    output.innerText = data.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Erro na geração.");
+                }
             } catch (e) {
-                output.innerText = "Erro: " + e.message;
+                output.innerHTML = `<div class="text-red-400 font-bold">⚠️ ${e.message}</div>`;
             } finally {
                 btn.disabled = false;
+                window.scrollTo({ top: output.offsetTop - 50, behavior: 'smooth' });
             }
         }
     </script>

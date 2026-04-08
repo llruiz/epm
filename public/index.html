@@ -154,57 +154,37 @@
         <div class="step-title"><span>3</span> Delimitadores Contextualizados Específicos</div>
         <div class="hint" style="margin-bottom: 1rem;">Opções personalizadas de acordo com o tema selecionado</div>
         
-        <div class="delimitadores-container">
-            <!-- Âmbito Institucional -->
+       <div class="delimitadores-container">
             <div class="delimitador-box">
                 <h4>📍 Âmbito Institucional</h4>
                 <select id="delimitador-espacial-select" onchange="updateEspacial()">
-                    <option value="">Selecione o âmbito...</option>
+                    <option value="">Selecione uma opção ou digite abaixo...</option>
                 </select>
-                <div id="opcoes-espacial" class="opcoes-especificas hidden">
-                    <label>Opções relevantes para este tema:</label>
-                    <div class="opcoes-grid" id="grid-opcoes-espacial"></div>
-                </div>
-                <input type="text" id="delimitador-espacial" placeholder="Personalize se necessário..." style="margin-top: 0.5rem;" oninput="generateResult()">
+                <input type="text" id="delimitador-espacial" placeholder="Personalize o âmbito..." style="margin-top: 0.5rem;" oninput="generateResult()">
             </div>
             
-            <!-- Marco Temporal -->
             <div class="delimitador-box">
-                <h4>⏳ Marco Temporal Relevante</h4>
+                <h4>⏳ Marco Temporal</h4>
                 <select id="delimitador-temporal-select" onchange="updateTemporal()">
-                    <option value="">Selecione o marco...</option>
+                    <option value="">Selecione um marco ou digite abaixo...</option>
                 </select>
-                <div id="opcoes-temporal" class="opcoes-especificas hidden">
-                    <label>Legislação e jurisprudência em voga:</label>
-                    <div class="opcoes-grid" id="grid-opcoes-temporal"></div>
-                </div>
-                <input type="text" id="delimitador-temporal" placeholder="Personalize se necessário..." style="margin-top: 0.5rem;" oninput="generateResult()">
+                <input type="text" id="delimitador-temporal" placeholder="Personalize o tempo..." style="margin-top: 0.5rem;" oninput="generateResult()">
             </div>
             
-            <!-- Fundamentação Teórica -->
             <div class="delimitador-box">
                 <h4>📚 Fundamentação Teórica</h4>
                 <select id="delimitador-teorico-select" onchange="updateTeorico()">
-                    <option value="">Selecione a abordagem...</option>
+                    <option value="">Selecione a abordagem ou digite abaixo...</option>
                 </select>
-                <div id="opcoes-teorico" class="opcoes-especificas hidden">
-                    <label>Doutrinas e princípios aplicáveis:</label>
-                    <div class="opcoes-grid" id="grid-opcoes-teorico"></div>
-                </div>
-                <input type="text" id="delimitador-teorico" placeholder="Personalize se necessário..." style="margin-top: 0.5rem;" oninput="generateResult()">
+                <input type="text" id="delimitador-teorico" placeholder="Personalize a teoria..." style="margin-top: 0.5rem;" oninput="generateResult()">
             </div>
             
-            <!-- Variável de Análise -->
             <div class="delimitador-box">
-                <h4>⚖️ Variável de Análise/Conflito</h4>
+                <h4>⚖️ Variável de Análise</h4>
                 <select id="variavel-select" onchange="updateVariavel()">
-                    <option value="">Selecione a variável...</option>
+                    <option value="">Selecione a variável ou digite abaixo...</option>
                 </select>
-                <div id="opcoes-variavel" class="opcoes-especificas hidden">
-                    <label>Conflitos específicos do tema:</label>
-                    <div class="opcoes-grid" id="grid-opcoes-variavel"></div>
-                </div>
-                <textarea id="variavel-conflito" placeholder="Descreva o aspecto controverso específico..." style="margin-top: 0.5rem; min-height: 60px;" oninput="generateResult()"></textarea>
+                <textarea id="variavel-conflito" placeholder="Descreva o aspecto controverso aqui..." style="margin-top: 0.5rem; min-height: 60px;" oninput="generateResult()"></textarea>
             </div>
         </div>
     </div>

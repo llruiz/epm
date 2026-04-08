@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socratis - Laboratório de Temas</title>
+    <title>Laboratório de Temas</title>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -125,7 +125,7 @@
 <div class="container">
     <header>
         <h1>Laboratório de Temas</h1>
-        <h3>Delimitação Contextualizada para Monografia EPM - Edição 2026</h3>
+        <h3>Delimitação Contextualizada para a Monografia</h3>
     </header>
 
     <!-- PASSO 1: Grande Área -->
@@ -155,9 +155,9 @@
         <div class="hint" style="margin-bottom: 1rem;">Opções personalizadas de acordo com o tema selecionado</div>
         
         <div class="delimitadores-container">
-            <!-- Âmbito Espacial/Institucional -->
+            <!-- Âmbito Institucional -->
             <div class="delimitador-box">
-                <h4>📍 Âmbito Espacial/Institucional</h4>
+                <h4>📍 Âmbito Institucional</h4>
                 <select id="delimitador-espacial-select" onchange="updateEspacial()">
                     <option value="">Selecione o âmbito...</option>
                 </select>
@@ -1219,7 +1219,7 @@
         let problemaFinal = formulas[formulaAtual](selecaoSubtema, variavel, teorico, espacial, temporal);
         
         if (teorico && !problemaFinal.includes(teorico)) problemaFinal += ` sob a ótica ${teorico}`;
-        if (espacial) problemaFinal += ` em ${espacial}`;
+        if (espacial) problemaFinal += ` em/no ${espacial}`;
         if (temporal) problemaFinal += ` após ${temporal}`;
         problemaFinal += "?";
 

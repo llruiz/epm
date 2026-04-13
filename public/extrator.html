@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Extrator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1d4ed8; --narrative: #059669; --parenthetical: #7c3aed; --block: #ea580c; --bg: #f1f5f9; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        header { background: var(--primary); color: white; padding: 25px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 2rem; }
+
+        #upload-area { background: white; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 30px; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
+        #upload-area:hover { border-color: var(--primary); background: #f8fafc; }
+
+        #search-container { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        #search-input { flex-grow: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
+        #search-input:focus { border-color: var(--primary); }
+
+        /* Estilo dos Filtros Rápidos */
+        .filter-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .filter-btn { padding: 8px 18px; border: 1px solid #cbd5e1; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; font-weight: 700; color: #475569; transition: 0.2s; }
+        .filter-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+        .filter-btn.active { border-color: transparent; color: white; }
+        
+        .filter-btn[data-filter="Todos"].active { background: var(--primary); }
+        .filter-btn[data-filter="Narrativa"].active { background: var(--narrative); }
+        .filter-btn[data-filter="Parentética"].active { background: var(--parenthetical); }
+        .filter-btn[data-filter="Citação Direta"].active { background: var(--block); }
+
+        .results-grid { display: flex; flex-direction: column; gap: 12px; }
+
+        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; transition: 0.2s; cursor: pointer; display: block; }
+        .card.hidden { display: none; }
+        .card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .card-header { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: #fcfcfd; border-bottom: 1px solid #f1f5f9; }
+        
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        
+        .btn-copiar {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-copiar:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+            border-color: #94a3b8;
+        }
+
+        .type-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; color: white; }
+        .badge-narrative { background: var(--narrative); }
+        .badge-parenthetical { background: var(--parenthetical); }
+        .badge-block { background: var(--block); }
+
+        .short-view { padding: 15px 20px; font-size: 14px; line-height: 1.6; color: #334155; }
+        .context-view { max-height: 0; overflow: hidden; padding: 0 20px; background: #f8fafc; transition: 0.3s ease; font-size: 13px; color: #64748b; }
+        .card.active .context-view { max-height: 1500px; padding: 15px 20px; border-top: 1px solid #e2e8f0; }
+
+        .highlight-search { background: #fef08a; font-weight: bold; color: #000; padding: 0 2px; border-radius: 2px; }
+        #status { text-align: center; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+        
+        .bloco-texto { display:block; padding-left: 20px; border-left: 3px solid var(--block); margin-top: 10px; color: #475569; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Extrair</h1>
+        <p>Extrai Citações + Filtros de Visualização</p>
+    </header>
+
+    <div id="upload-area" onclick="document.getElementById('pdf-file').click()">
+        <input type="file" id="pdf-file" accept="application/pdf" style="display:none">
+        <strong>📄 Carregar PDF (Trabalho Acadêmico)</strong>
+        <p style="font-size: 0.8rem; margin-top: 5px;">Processamento 100% offline.</p>
+    </div>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="🔍 Filtrar por palavra-chave..." disabled>
+    </div>
+
+    <div class="filter-container" id="filter-container" style="display: none;">
+        <button class="filter-btn active" data-filter="Todos">Todas as Fontes</button>
+        <button class="filter-btn" data-filter="Narrativa">Narrativas</button>
+        <button class="filter-btn" data-filter="Parentética">Parentéticas</button>
+        <button class="filter-btn" data-filter="Citação Direta">Citações em Bloco</button>
+    </div>
+
+    <div id="status">Aguardando arquivo...</div>
+    <div id="results-list" class="results-grid"></div>
+</div>
+
+<script>
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let baseDados = []; 
+    let currentFilter = "Todos"; 
+    const fileInput = document.getElementById('pdf-file');
+    const searchInput = document.getElementById('search-input');
+    const resultsList = document.getElementById('results-list');
+    const statusDiv = document.getElementById('status');
+    const filterContainer = document.getElementById('filter-container');
+
+    // Lógica dos Botões de Filtro
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.getAttribute('data-filter');
+            renderizar(baseDados, searchInput.value, currentFilter);
+        });
+    });
+
+    // --- FUNÇÕES DE TEXTO FLUIDO ---
+    function obterFraseCompleta(texto, pos, lenAnchor) {
+        let raioDeBusca = 600; 
+        let start = Math.max(0, pos - raioDeBusca);
+        let end = Math.min(texto.length, pos + lenAnchor + raioDeBusca);
+
+        let tInicio = texto.substring(start, pos);
+        let tFim = texto.substring(pos + lenAnchor, end);
+
+        let posFraseStart = start;
+        let matchStart = tInicio.match(/(?:[.!?])\s+(?=[A-ZÀ-Ú])/g);
+        if (matchStart) {
+            let lastMatch = matchStart[matchStart.length - 1];
+            posFraseStart = start + tInicio.lastIndexOf(lastMatch) + lastMatch.length;
+        }
+
+        let posFraseEnd = end;
+        let matchEnd = tFim.match(/(?:[.!?])(?=\s|$)/);
+        if (matchEnd) {
+            posFraseEnd = pos + lenAnchor + tFim.indexOf(matchEnd[0]) + 1;
+        }
+
+        let frase = texto.substring(posFraseStart, posFraseEnd).trim();
+        let textoSemAnchor = frase.replace(texto.substring(pos, pos + lenAnchor), "");
+        let letrasReais = textoSemAnchor.replace(/[^a-zA-ZÀ-Úà-ú]/g, ""); 
+
+        if (letrasReais.length < 10 && posFraseStart > 0) {
+            let novoTInicio = texto.substring(Math.max(0, posFraseStart - 500), posFraseStart - 1);
+            let novoMatchStart = novoTInicio.match(/(?:[.!?])\s+(?=[A-ZÀ-Ú])/g);
+            
+            if (novoMatchStart) {
+                let lastMatch2 = novoMatchStart[novoMatchStart.length - 1];
+                posFraseStart = Math.max(0, posFraseStart - 500) + novoTInicio.lastIndexOf(lastMatch2) + lastMatch2.length;
+            } else {
+                posFraseStart = Math.max(0, posFraseStart - 200); 
+            }
+            frase = texto.substring(posFraseStart, posFraseEnd).trim();
+        }
+        return frase;
+    }
+    
+    function obterTrechoInteligente(texto, pos, lenAnchor) {
+        let raio = 400;
+        let start = Math.max(0, pos - raio);
+        let end = Math.min(texto.length, pos + lenAnchor + raio);
+
+        if (start > 0) {
+            let nextSpace = texto.indexOf(' ', start);
+            if (nextSpace !== -1 && nextSpace < pos) start = nextSpace + 1;
+        }
+        if (end < texto.length) {
+            let prevSpace = texto.lastIndexOf(' ', end);
+            if (prevSpace !== -1 && prevSpace > pos + lenAnchor) end = prevSpace;
+        }
+        let trecho = texto.substring(start, end).trim();
+        let prefix = (start > 0 && !/^[A-ZÀ-Ú]/.test(trecho)) ? "(...) " : "";
+        let suffix = (end < texto.length && !/[.!?]$/.test(trecho)) ? " (...)" : "";
+        return prefix + trecho + suffix;
+    }
+
+    // --- LEITURA DO PDF ---
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        statusDiv.textContent = "⚙️ Lendo geometria e métricas de fonte...";
+        resultsList.innerHTML = "";
+        baseDados = [];
+        searchInput.disabled = true;
+        filterContainer.style.display = "none";
+
+        const reader = new FileReader();
+        reader.onload = async function() {
+            const typedarray = new Uint8Array(this.result);
+            try {
+                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                let fullTextNormal = "";
+                let linhasGeometricas = [];
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    
+                    let lastY = -1;
+                    let currentLineText = "";
+                    let startX = -1;
+                    let maxFontSize = 0;
+
+                    content.items.forEach(item => {
+                        fullTextNormal += item.str + " ";
+                        let strTrimmed = item.str.trim();
+                        let fontSize = Math.abs(item.transform[0]);
+                        
+                        if (lastY === -1 || Math.abs(lastY - item.transform[5]) > 4) {
+                            if (currentLineText.trim().length > 0) {
+                                linhasGeometricas.push({ 
+                                    text: currentLineText.trim(), 
+                                    x: startX,
+                                    fontSize: Math.round(maxFontSize * 10) / 10 
+                                });
+                            }
+                            currentLineText = item.str;
+                            startX = strTrimmed.length > 0 ? item.transform[4] : -1;
+                            maxFontSize = fontSize;
+                            lastY = item.transform[5];
+                        } else {
+                            currentLineText += " " + item.str;
+                            if (startX === -1 && strTrimmed.length > 0) startX = item.transform[4];
+                            if (fontSize > maxFontSize) maxFontSize = fontSize;
+                        }
+                    });
+                    if (currentLineText.trim().length > 0) {
+                        linhasGeometricas.push({ text: currentLineText.trim(), x: startX, fontSize: Math.round(maxFontSize * 10) / 10 });
+                    }
+                }
+                
+                processarEGuardar(fullTextNormal, linhasGeometricas);
+            } catch (err) {
+                console.error(err);
+                statusDiv.textContent = "❌ Erro ao ler PDF.";
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    function processarEGuardar(textoCompleto, linhasGeometricas) {
+        const vistos = new Set();
+
+        let contagemX = {};
+        let contagemFont = {};
+        
+        linhasGeometricas.forEach(l => {
+            if (l.x !== -1 && l.text.trim().length > 15) { 
+                let xAprox = Math.round(l.x / 5) * 5;
+                contagemX[xAprox] = (contagemX[xAprox] || 0) + 1;
+                contagemFont[l.fontSize] = (contagemFont[l.fontSize] || 0) + 1;
+            }
+        });
+        
+        let baselineX = Object.keys(contagemX).length > 0 ? parseFloat(Object.keys(contagemX).reduce((a, b) => contagemX[a] > contagemX[b] ? a : b)) : 0;
+        let baselineFont = Object.keys(contagemFont).length > 0 ? parseFloat(Object.keys(contagemFont).reduce((a, b) => contagemFont[a] > contagemFont[b] ? a : b)) : 12;
+
+        let tempBloco = [];
+        
+        linhasGeometricas.forEach(linha => {
+            let temRecuo = (linha.x > baselineX + 15) || linha.text.match(/^\s{3,}/);
+            let temFonteMenor = (linha.fontSize < baselineFont - 0.2); 
+            
+            if (temRecuo && temFonteMenor) {
+                tempBloco.push(linha);
+            } else {
+                if (tempBloco.length > 0) {
+                    let textoDoBloco = tempBloco.map(l => l.text.trim()).join('\n');
+                    
+                    if (textoDoBloco.length > 30) {
+                        let chaveUnica = textoDoBloco.substring(0, 50).toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (!vistos.has(chaveUnica)) {
+                            vistos.add(chaveUnica);
+                            baseDados.push({
+                                autor: "Citação em Bloco (ABNT)",
+                                estilo: "Citação Direta",
+                                badgeClass: "badge-block",
+                                curta: textoDoBloco.substring(0, 200).replace(/\n/g, ' ') + (textoDoBloco.length > 200 ? "..." : ""),
+                                longa: textoDoBloco
+                            });
+                        }
+                    }
+                    tempBloco = []; 
+                }
+            }
+        });
+
+        const cleanText = textoCompleto.replace(/\s+/g, ' ');
+        const regexCit = /([A-ZÀ-Ú][a-zà-ú]+|\([A-ZÀ-Ú\s]+)\s?\(\d{4}[^\)]*\)|\([A-ZÀ-Ú\s\.,]+,\s?\d{4}[^\)]*\)/g;
+        let match;
+
+        while ((match = regexCit.exec(cleanText)) !== null) {
+            const anchor = match[0];
+            const pos = match.index;
+            const estilo = anchor.startsWith('(') ? 'Parentética' : 'Narrativa';
+            const badgeClass = anchor.startsWith('(') ? 'badge-parenthetical' : 'badge-narrative';
+            
+            const chaveUnica = anchor.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            if (!vistos.has(chaveUnica)) {
+                vistos.add(chaveUnica);
+                baseDados.push({
+                    autor: anchor,
+                    estilo: estilo,
+                    badgeClass: badgeClass,
+                    curta: obterFraseCompleta(cleanText, pos, anchor.length),
+                    longa: obterTrechoInteligente(cleanText, pos, anchor.length)
+                });
+            }
+        }
+
+        searchInput.disabled = false;
+        filterContainer.style.display = "flex"; 
+        renderizar(baseDados, "", currentFilter);
+    }
+
+    function renderizar(lista, termo = "", filtro = "Todos") {
+        resultsList.innerHTML = "";
+        const termoBusca = termo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        const filtrados = lista.filter(item => {
+            if (filtro !== "Todos" && item.estilo !== filtro) return false;
+            const txt = (item.curta + item.longa + item.autor).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return txt.includes(termoBusca);
+        });
+
+        statusDiv.textContent = `${filtrados.length} resultados encontrados`;
+
+        filtrados.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // Controle de expansão do card (ignora se clicar no botão de copiar)
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.btn-copiar')) {
+                    card.classList.toggle('active');
+                }
+            });
+
+            let visualCurta = item.curta;
+            let visualLonga = item.longa;
+
+            if (item.estilo !== 'Citação Direta') {
+                visualCurta = visualCurta.replace(item.autor, `<b style="color:var(--primary)">${item.autor}</b>`);
+                visualLonga = visualLonga.replace(item.autor, `<b style="color:var(--primary)">${item.autor}</b>`);
+            } else {
+                visualLonga = `<span class="bloco-texto">${visualLonga.replace(/\n/g, '<br>')}</span>`;
+            }
+
+            if (termo) {
+                const regexHigh = new RegExp(`(${termo})`, 'gi');
+                visualCurta = visualCurta.replace(regexHigh, '<mark class="highlight-search">$1</mark>');
+                visualLonga = visualLonga.replace(regexHigh, '<mark class="highlight-search">$1</mark>');
+            }
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span style="font-weight:700; font-size:13px; color: ${item.estilo === 'Citação Direta' ? 'var(--block)' : '#1e293b'}">${item.autor}</span>
+                    <div class="header-actions">
+                        <button class="btn-copiar" title="Copiar texto expandido">📋 Copiar</button>
+                        <span class="type-badge ${item.badgeClass}">${item.estilo}</span>
+                    </div>
+                </div>
+                <div class="short-view">${visualCurta}</div>
+                <div class="context-view"><strong>${item.estilo === 'Citação Direta' ? 'Texto do Bloco Recuado:' : 'Contexto Ampliado:'}</strong><br>${visualLonga}</div>
+            `;
+
+            // Lógica do botão Copiar
+            const btnCopiar = card.querySelector('.btn-copiar');
+            btnCopiar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Copia o texto puro original extraído (item.longa), garantindo formatação ideal para a Caixa de Ideias
+                navigator.clipboard.writeText(item.longa).then(() => {
+                    btnCopiar.innerHTML = '✅ Copiado!';
+                    btnCopiar.style.color = '#059669';
+                    btnCopiar.style.borderColor = '#059669';
+                    
+                    setTimeout(() => {
+                        btnCopiar.innerHTML = '📋 Copiar';
+                        btnCopiar.style.color = '';
+                        btnCopiar.style.borderColor = '';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                });
+            });
+
+            resultsList.appendChild(card);
+        });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        renderizar(baseDados, e.target.value, currentFilter);
+    });
+</script>
+</body>
+</html>

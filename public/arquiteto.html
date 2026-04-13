@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --accent: #2563eb;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --terminal-bg: #0f172a;
+            --terminal-text: #10b981;
+            --success: #059669;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-dark); margin: 0; padding: 20px; line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header { background: var(--primary); color: white; padding: 25px; border-radius: 12px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 2rem; }
+        h3 { margin: 5px 0 0 0; font-weight: 400; font-size: 1rem; color: #bfdbfe; }
+
+        .section-title { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 5px; }
+
+        /* Bases do Projeto */
+        .bases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-weight: 600; font-size: 0.9rem; color: var(--text-dark); }
+        .input-group input, .input-group select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
+        .full-width { grid-column: span 2; }
+
+        /* The Messy Box */
+        .messy-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; }
+        .messy-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        .messy-controls textarea { flex-grow: 1; padding: 10px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; min-height: 60px; font-size: 0.9rem; }
+        
+        button { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 5px; justify-content: center;}
+        button:hover { background: var(--primary); }
+        .btn-anteprojeto { background: var(--success); }
+        .btn-anteprojeto:hover { background: #047857; }
+
+        /* Kanban Board */
+        .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .column { background: #e2e8f0; border-radius: 8px; padding: 10px; min-height: 400px; display: flex; flex-direction: column; gap: 10px; }
+        .column h4 { margin: 0 0 10px 0; text-align: center; color: var(--primary); font-size: 0.95rem; }
+        
+        /* Draggable Cards */
+        .card { background: var(--card-bg); padding: 12px; border-radius: 6px; border-left: 4px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: grab; font-size: 0.85rem; color: #334155; position: relative; }
+        .card:active { cursor: grabbing; }
+        .card.dragging { opacity: 0.5; border: 2px dashed var(--accent); }
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: transparent; color: #ef4444; border: none; font-size: 1rem; cursor: pointer; padding: 0; }
+        .delete-btn:hover { color: #b91c1c; }
+
+        /* Terminal Prompt e Contador */
+        .terminal-container { background: var(--terminal-bg); padding: 20px; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+        .terminal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
+        .terminal-header h3 { color: white; margin: 0; font-family: monospace; }
+        .terminal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        /* Estilos do Contador */
+        .counter-box { background: #1e293b; padding: 8px 15px; border-radius: 6px; border: 1px solid #334155; display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 0.9rem; }
+        .counter-label { color: #94a3b8; }
+        #char-count { font-weight: bold; transition: color 0.3s; }
+        .count-safe { color: #10b981; } 
+        .count-warn { color: #f59e0b; } 
+        .count-danger { color: #ef4444; } 
+
+        #prompt-output { font-family: 'Courier New', Courier, monospace; color: var(--terminal-text); white-space: pre-wrap; word-wrap: break-word; font-size: 0.9rem; margin: 0; padding-top: 15px; border-top: 1px solid #334155; }
+
+        @media (max-width: 1024px) { .board { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .bases-grid { grid-template-columns: 1fr; } .board { grid-template-columns: 1fr; } .terminal-header { flex-direction: column; align-items: flex-start;} .terminal-actions { width: 100%; } .terminal-actions button { width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Arquitetar</h1>
+        <h3>Módulo de Estruturação e Prompting Acadêmico (Padrão EPM)</h3>
+    </header>
+
+    <h2 class="section-title">1. As Bases (Inputs Imutáveis)</h2>
+    <div class="bases-grid">
+        <div class="input-group full-width">
+            <label for="tema">Tema Delimitado:</label>
+            <input type="text" id="tema" placeholder="Ex: Eficácia jurídica da inseminação caseira no reconhecimento da multiparentalidade...">
+        </div>
+        <div class="input-group full-width">
+            <label for="problema">Problema de Pesquisa (Fórmula "Como/Em que medida..."):</label>
+            <input type="text" id="problema" placeholder="Ex: Em que medida a ausência de regulação sobre inseminação caseira afeta o registro civil?">
+        </div>
+        <div class="input-group">
+            <label for="objetivo">Objetivo Geral (Verbo no infinitivo):</label>
+            <input type="text" id="objetivo" placeholder="Ex: Analisar os impactos jurídicos...">
+        </div>
+        <div class="input-group">
+            <label for="metodologia">Metodologia de Pesquisa:</label>
+            <select id="metodologia">
+                <option value="Pesquisa Bibliográfica e Documental (Recomendado EPM)">Pesquisa Bibliográfica e Documental</option>
+                <option value="Pesquisa Bibliográfica Pura">Pesquisa Bibliográfica Pura</option>
+                <option value="Estudo de Caso">Estudo de Caso</option>
+            </select>
+        </div>
+    </div>
+
+    <h2 class="section-title">2. Caixa de Ideias (Brainstorm & Extrator)</h2>
+    <div class="messy-box">
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0;">Aqui vão conceitos chave, cole trechos do Extrator ou escreva ideias soltas, e transforme-os em blocos (cards).</p>
+        <div class="messy-controls">
+            <textarea id="idea-input" placeholder="Cole aqui a citação ou digite o seu pensamento bruto..."></textarea>
+            <button onclick="addCard()">Adicionar Bloco</button>
+        </div>
+    </div>
+
+    <h2 class="section-title">3. Esqueleto de Capítulos (Drag & Drop)</h2>
+    <div class="board">
+        <div class="column" id="col-ideias" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h4>💡 Ideias Livres</h4>
+        </div>
+
+        <div class="column" id="col-cap1" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h4>Capítulo 1:<br>Fundamentação Teórica</h4>
+        </div>
+
+        <div class="column" id="col-cap2" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h4>Capítulo 2:<br>Marco Legal e Jurisprudencial</h4>
+        </div>
+
+        <div class="column" id="col-cap3" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h4>Capítulo 3:<br>Análise e Proposta</h4>
+        </div>
+    </div>
+
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <h3>>_ TERMINAL DE PROMPTS</h3>
+            <div class="counter-box">
+                <span class="counter-label">Tamanho Base:</span>
+                <span id="char-count" class="count-safe">0</span>
+                <span class="counter-label">/ 15000 máx</span>
+            </div>
+        </div>
+        
+        <div class="terminal-actions">
+            <button onclick="executePromptGeneration('sumario')" title="Gera o prompt para criação do sumário estruturado">
+                📋 1. Prompt de Sumário
+            </button>
+            <button class="btn-anteprojeto" onclick="executePromptGeneration('anteprojeto')" title="Gera o prompt para consolidação formal do Anteprojeto EPM">
+                📑 2. Prompt do Anteprojeto (EPM)
+            </button>
+        </div>
+
+        <pre id="prompt-output">Aguardando seleção... Preencha os campos, organize os blocos e clique num dos botões acima para gerar o seu super-prompt.</pre>
+    </div>
+</div>
+
+<script>
+    let cardIdCounter = 0;
+    const MAX_SAFE_CHARS = 15000;
+
+    function getBaseData() {
+        return {
+            tema: document.getElementById('tema').value || "[TEMA NÃO DEFINIDO]",
+            problema: document.getElementById('problema').value || "[PROBLEMA NÃO DEFINIDO]",
+            objetivo: document.getElementById('objetivo').value || "[OBJETIVO NÃO DEFINIDO]",
+            metodologia: document.getElementById('metodologia').value,
+            cap1: getColumnData('col-cap1'),
+            cap2: getColumnData('col-cap2'),
+            cap3: getColumnData('col-cap3')
+        };
+    }
+
+    // --- PROMPT 1: SUMÁRIO ---
+    function buildSumarioPromptText(dados) {
+        return `Atuando como um assistente de metodologia e organização académica, ajude-me a estruturar um esqueleto de sumário detalhado para a minha monografia. 
+
+IMPORTANTE: De acordo com as regras da minha instituição, você NÃO deve gerar o conteúdo do trabalho, inventar citações ou redigir o texto final. A sua tarefa é atuar estritamente como organizador das minhas ideias.
+
+Aqui estão as bases imutáveis do meu trabalho:
+* Tema: ${dados.tema}
+* Problema de Pesquisa: ${dados.problema}
+* Objetivo Geral: ${dados.objetivo}
+* Metodologia: ${dados.metodologia}
+
+Abaixo, organizei os meus próprios pensamentos e citações extraídas previamente. Eles estão divididos na estrutura obrigatória de 3 capítulos. 
+
+CAPÍTULO 1 (Fundamentação Teórica):
+${dados.cap1}
+
+CAPÍTULO 2 (Marco Legal e Jurisprudencial):
+${dados.cap2}
+
+CAPÍTULO 3 (Análise Crítica e Proposta):
+${dados.cap3}
+
+Com base EXCLUSIVAMENTE nos meus insumos acima, execute as seguintes tarefas:
+1. Crie subtópicos lógicos (ex: 1.1, 1.2, 1.3) para cada um dos 3 capítulos, distribuindo as minhas citações/ideias onde fizerem mais sentido.
+2. Defina 1 (um) Objetivo Específico para cada capítulo, usando apenas verbos no infinitivo (ex: Analisar, Avaliar, Comparar, Identificar).
+3. Garanta que o fluxo do sumário comece de forma genérica (Capítulo 1) e termine respondendo ao Problema de Pesquisa (Capítulo 3).`;
+    }
+
+    // --- PROMPT 2: ANTEPROJETO EPM ---
+    function buildAnteprojetoPromptText(dados) {
+        return `Atue como o meu orientador metodológico rigoroso. Preciso de consolidar formalmente o Anteprojeto da minha monografia para a Escola Paulista da Magistratura (EPM) na área de Família e Sucessões.
+
+Lembrete de Regra Institucional: Você NÃO deve redigir a monografia por mim nem inventar referenciais teóricos não listados. A sua função é pegar nos insumos em bruto que lhe forneço abaixo e organizá-los na estrutura rígida de 11 pontos exigida pela EPM, formulando conexões lógicas e mantendo o rigor académico.
+
+OS MEUS INSUMOS BRUTOS:
+* Tema Delimitado: ${dados.tema}
+* Problema de Pesquisa: ${dados.problema}
+* Objetivo Geral: ${dados.objetivo}
+* Metodologia Selecionada: ${dados.metodologia}
+
+MINHA BASE TEÓRICA E IDEIAS POR CAPÍTULO (Citações extraídas):
+Capítulo 1: ${dados.cap1}
+Capítulo 2: ${dados.cap2}
+Capítulo 3: ${dados.cap3}
+
+SUA TAREFA:
+Redija a sugestão do ANTEPROJETO COMPLETO, preenchendo detalhadamente os seguintes 11 tópicos obrigatórios:
+
+1. TEMA: (Apresente o tema de forma direta).
+2. DELIMITAÇÃO DO TEMA: (Identifique claramente quais foram os sinalizadores espaciais, temporais ou teóricos utilizados no tema).
+3. OBJETIVO GERAL: (Reproduza o meu objetivo geral).
+4. OBJETIVOS ESPECÍFICOS: (Crie 3 objetivos específicos, um para cada capítulo previsto, iniciando sempre com verbo no infinitivo).
+5. PROBLEMA DE PESQUISA: (Apresente a minha pergunta).
+6. HIPÓTESES: (Formule 2 hipóteses lógicas e bem fundamentadas que sirvam de resposta provisória ao meu Problema de Pesquisa, baseando-se nos meus insumos).
+7. METODOLOGIA: (Descreva o tipo de pesquisa e os procedimentos, confirmando a seleção que fiz).
+8. TEORIA DE BASE: (Sintetize em 2 parágrafos a fundamentação teórica que suporta o meu trabalho, baseando-se nas citações e ideias que lhe enviei).
+9. PLANO DE TRABALHO PROVISÓRIO: (Transforme as minhas ideias dos Capítulos 1, 2 e 3 num sumário estruturado em tópicos 1.1, 1.2, etc.).
+10. CRONOGRAMA: (Estruture um cronograma padrão de 6 meses divididos da seguinte forma: Março-Abril [Definição], Maio-Junho [Pesquisa e Fichamento], Julho-Agosto [Redação dos Capítulos], Setembro [Revisão], Outubro-Novembro [Formatação e Versão final]).
+11. REFERÊNCIAS PRELIMINARES: (Extraia os nomes dos autores e obras citados nos meus insumos e apresente-os no formato ABNT. Caso não haja obras completas, crie os *placeholders* com os nomes dos autores citados).
+
+Apresente o resultado final com formatação limpa (Markdown), pronto para ser copiado para um documento de texto.`;
+    }
+
+    // --- Telemetria / Contador de Caracteres ---
+    function updateCharCount() {
+        const dados = getBaseData();
+        // O contador baseia-se no volume de texto das ideias e inputs
+        const rawText = dados.tema + dados.problema + dados.objetivo + dados.cap1 + dados.cap2 + dados.cap3;
+        const length = rawText.length;
+        
+        const countDisplay = document.getElementById('char-count');
+        countDisplay.textContent = length.toLocaleString('pt-PT');
+
+        countDisplay.classList.remove('count-safe', 'count-warn', 'count-danger');
+        if (length < 8000) {
+            countDisplay.classList.add('count-safe');
+        } else if (length < 12000) {
+            countDisplay.classList.add('count-warn');
+        } else {
+            countDisplay.classList.add('count-danger');
+        }
+    }
+
+    function getColumnData(columnId) {
+        const column = document.getElementById(columnId);
+        const cards = column.querySelectorAll('.card');
+        let data = [];
+        cards.forEach(card => {
+            let text = card.innerHTML.replace(/<button.*<\/button>/, '').trim();
+            data.push("- " + text);
+        });
+        return data.length > 0 ? data.join('\n') : "Nenhum insumo alocado.";
+    }
+
+    function addCard() {
+        const input = document.getElementById('idea-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.draggable = true;
+        card.id = 'card-' + cardIdCounter++;
+        card.innerHTML = `${text}<button class="delete-btn" onclick="removeCard(this)">×</button>`;
+
+        card.addEventListener('dragstart', drag);
+        card.addEventListener('dragend', dragEnd);
+
+        document.getElementById('col-ideias').appendChild(card);
+        input.value = '';
+        updateCharCount();
+    }
+
+    function removeCard(btnElement) {
+        btnElement.parentElement.remove();
+        updateCharCount();
+    }
+
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); setTimeout(() => ev.target.classList.add('dragging'), 0); }
+    function dragEnd(ev) { ev.target.classList.remove('dragging'); updateCharCount(); }
+    function drop(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        const card = document.getElementById(data);
+        let dropTarget = ev.target;
+        while (!dropTarget.classList.contains('column')) { dropTarget = dropTarget.parentElement; }
+        dropTarget.appendChild(card);
+    }
+
+    // Ação Final dos Botões de Gerar Prompt
+    function executePromptGeneration(tipo) {
+        const dados = getBaseData();
+        let promptText = "";
+
+        if (tipo === 'sumario') {
+            promptText = buildSumarioPromptText(dados);
+        } else if (tipo === 'anteprojeto') {
+            promptText = buildAnteprojetoPromptText(dados);
+        }
+        
+        if (promptText.length > MAX_SAFE_CHARS) {
+            const prosseguir = confirm(`Atenção: O seu prompt tem ${promptText.length.toLocaleString('pt-PT')} caracteres. Isso pode exceder o limite de contexto das IAs gratuitas. Deseja copiar mesmo assim?`);
+            if (!prosseguir) return;
+        }
+
+        const output = document.getElementById('prompt-output');
+        output.textContent = promptText;
+
+        navigator.clipboard.writeText(promptText).then(() => {
+            alert('Prompt gerado e copiado para a área de transferência! Cole na sua IA de preferência.');
+        }).catch(err => {
+            console.error('Erro ao copiar: ', err);
+        });
+    }
+
+    document.getElementById('idea-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            addCard();
+        }
+    });
+
+    document.querySelectorAll('.bases-grid input, .bases-grid select').forEach(element => {
+        element.addEventListener('input', updateCharCount);
+    });
+
+    window.onload = updateCharCount;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório de Temas</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --accent: #2563eb;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --orange: #f59e0b;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            --gold: #d97706;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-dark); margin: 0; padding: 2rem; line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        header { text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border); }
+        h1 { color: var(--primary); margin-bottom: 0.5rem; }
+        h3 { color: var(--text-muted); font-weight: 400; font-size: 1.1rem; margin-top: 0; }
+        .step-container { margin-bottom: 2rem; }
+        .step-title { font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .step-title span { background: var(--accent); color: white; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.9rem; }
+        .chip-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        .chip { padding: 0.75rem 1.25rem; background-color: white; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s ease; user-select: none; font-size: 0.9rem; }
+        .chip:hover { border-color: var(--accent); background-color: var(--primary-light); }
+        .chip.active { background-color: var(--accent); border-color: var(--accent); color: white; }
+        .chip.voga { border-color: var(--pink); position: relative; }
+        .chip.voga::after { content: "🔥"; position: absolute; top: -5px; right: -5px; font-size: 0.7rem; }
+        .chip.voga:hover { background-color: #fdf2f8; }
+        .chip.voga.active { background-color: var(--pink); border-color: var(--pink); }
+        
+        .subcategoria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .subcategoria-card { border: 2px solid var(--border); border-radius: 10px; padding: 1rem; cursor: pointer; transition: all 0.2s; background: white; }
+        .subcategoria-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .subcategoria-card.active { border-color: var(--accent); background-color: var(--primary-light); }
+        .subcategoria-card h5 { margin: 0 0 0.5rem 0; color: var(--primary); font-size: 1rem; }
+        .subcategoria-card p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+        .subcategoria-card .tag { display: inline-block; padding: 0.2rem 0.5rem; background: var(--pink); color: white; font-size: 0.7rem; border-radius: 4px; margin-top: 0.5rem; }
+        
+        .delimitadores-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
+        .delimitador-box { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+        .delimitador-box h4 { margin: 0 0 1rem 0; color: var(--primary); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; }
+        .delimitador-box select { width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .delimitador-box input { width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; font-size: 0.9rem; }
+        .delimitador-box textarea { width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; font-size: 0.9rem; resize: vertical; min-height: 80px; font-family: inherit; }
+        .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        .opcoes-especificas { margin-top: 0.75rem; padding: 0.75rem; background: var(--primary-light); border-radius: 8px; border-left: 3px solid var(--accent); }
+        .opcoes-especificas label { font-size: 0.8rem; font-weight: 600; color: var(--primary); display: block; margin-bottom: 0.5rem; }
+        .opcoes-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .opcao-chip { padding: 0.4rem 0.8rem; background: white; border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .opcao-chip:hover { border-color: var(--accent); background: var(--primary-light); }
+        .opcao-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+        
+        .ai-box { background-color: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.5rem; margin-top: 2rem; }
+        .ai-box h4 { margin-top: 0; color: var(--primary); font-size: 1.2rem; }
+        .result-text { font-size: 1.1rem; font-weight: 500; color: var(--text-dark); margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid var(--accent); }
+        
+        .termos-seletor { background: white; border: 2px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; }
+        .termos-seletor h5 { margin: 0 0 0.75rem 0; color: var(--primary); font-size: 0.95rem; }
+        .termos-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .termo-chip { padding: 0.5rem 1rem; background: #f1f5f9; border: 2px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .termo-chip:hover { border-color: var(--accent); }
+        .termo-chip.selected { background: var(--accent); color: white; border-color: var(--accent); }
+        .termo-chip.selected::after { content: "✓"; font-weight: bold; }
+        .termos-aviso { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+        
+        .busca-preview { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; font-family: monospace; font-size: 0.85rem; color: var(--text-dark); word-break: break-all; }
+        
+        .formula-selector { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .formula-chip { padding: 0.5rem 1rem; background: white; border: 2px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+        .formula-chip:hover { border-color: var(--accent); }
+        .formula-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+        
+        .search-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem; border-top: 2px dashed #bfdbfe; padding-top: 1.5rem; }
+        .tribunal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; border-top: 2px dashed #bfdbfe; padding-top: 1.5rem; }
+        button { padding: 0.75rem 1rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.1s, opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.95rem; color: white; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        .btn-scholar { background-color: var(--success); }
+        .btn-bdtd { background-color: var(--primary); }
+        .btn-tjsp { background-color: var(--orange); }
+        .btn-stj { background-color: var(--teal); }
+        .btn-chatgpt { 
+            background-color: #10a37f; /* Cor oficial do ChatGPT */
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+            padding: 1rem;
+            font-size: 1.05rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(16, 163, 127, 0.2);
+            transition: all 0.3s;
+        }
+        .btn-chatgpt:hover { 
+            background-color: #0d8a6a; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(16, 163, 127, 0.3);
+        }
+        .hidden { display: none; }
+        .toggle-container { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.75rem; background: white; border-radius: 8px; border: 1px solid var(--border); }
+        .toggle-switch { position: relative; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .toggle-label { font-size: 0.9rem; color: var(--text-muted); }
+        .toggle-label strong { color: var(--text-dark); }
+        
+        .format-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .format-tab { padding: 0.5rem 1rem; background: white; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+        .format-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+        .format-tab:hover:not(.active) { border-color: var(--accent); }
+        
+        .info-badge { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; padding: 0.25rem 0.5rem; background: var(--primary-light); color: var(--primary); border-radius: 4px; margin-left: 0.5rem; }
+        .section-title { font-size: 0.9rem; color: var(--text-muted); margin: 1rem 0 0.5rem 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        @media (max-width: 768px) {
+            .delimitadores-container { grid-template-columns: 1fr; }
+            .search-grid { grid-template-columns: 1fr; }
+            .tribunal-grid { grid-template-columns: 1fr; }
+            .subcategoria-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Laboratório de Temas</h1>
+        <h3>Delimitação Contextualizada para a Monografia</h3>
+    </header>
+
+    <!-- PASSO 1: Grande Área -->
+    <div class="step-container">
+        <div class="step-title"><span>1</span> Escolha a Grande Área</div>
+        <div class="chip-grid" id="area-grid">
+            <div class="chip" data-value="Familia">Direito de Família</div>
+            <div class="chip" data-value="Sucessoes">Direito das Sucessões</div>
+        </div>
+    </div>
+
+    <!-- PASSO 2: Subtemas com Subcategorias -->
+    <div class="step-container hidden" id="step-subtema">
+        <div class="step-title"><span>2</span> Selecione o Tema Específico</div>
+        <div class="chip-grid" id="subtema-grid"></div>
+        
+        <!-- Subcategorias dinâmicas -->
+        <div class="step-container hidden" id="step-subcategorias" style="margin-top: 1.5rem;">
+            <div class="step-title" style="font-size: 1rem;"><span>2.1</span> Enfoque Atual (2026)</div>
+            <div class="subcategoria-grid" id="subcategoria-grid"></div>
+        </div>
+    </div>
+
+    <!-- PASSO 3: Delimitadores Contextualizados ESPECÍFICOS -->
+    <div class="step-container hidden" id="step-delimitadores">
+        <div class="step-title"><span>3</span> Delimitadores Contextualizados Específicos</div>
+        <div class="hint" style="margin-bottom: 1rem;">Opções personalizadas de acordo com o tema selecionado</div>
+        
+        <div class="delimitadores-container">
+            <!-- Âmbito Institucional -->
+            <div class="delimitador-box">
+                <h4>📍 Âmbito Institucional</h4>
+                <select id="delimitador-espacial-select" onchange="updateEspacial()">
+                    <option value="">Selecione o âmbito...</option>
+                </select>
+                <div id="opcoes-espacial" class="opcoes-especificas hidden">
+                    <label>Opções relevantes para este tema:</label>
+                    <div class="opcoes-grid" id="grid-opcoes-espacial"></div>
+                </div>
+                <input type="text" id="delimitador-espacial" placeholder="Personalize se necessário..." style="margin-top: 0.5rem;" oninput="generateResult()">
+            </div>
+            
+            <!-- Marco Temporal -->
+            <div class="delimitador-box">
+                <h4>⏳ Marco Temporal Relevante</h4>
+                <select id="delimitador-temporal-select" onchange="updateTemporal()">
+                    <option value="">Selecione o marco...</option>
+                </select>
+                <div id="opcoes-temporal" class="opcoes-especificas hidden">
+                    <label>Legislação e jurisprudência em voga:</label>
+                    <div class="opcoes-grid" id="grid-opcoes-temporal"></div>
+                </div>
+                <input type="text" id="delimitador-temporal" placeholder="Personalize se necessário..." style="margin-top: 0.5rem;" oninput="generateResult()">
+            </div>
+            
+            <!-- Fundamentação Teórica -->
+            <div class="delimitador-box">
+                <h4>📚 Fundamentação Teórica</h4>
+                <select id="delimitador-teorico-select" onchange="updateTeorico()">
+                    <option value="">Selecione a abordagem...</option>
+                </select>
+                <div id="opcoes-teorico" class="opcoes-especificas hidden">
+                    <label>Doutrinas e princípios aplicáveis:</label>
+                    <div class="opcoes-grid" id="grid-opcoes-teorico"></div>
+                </div>
+                <input type="text" id="delimitador-teorico" placeholder="Personalize se necessário..." style="margin-top: 0.5rem;" oninput="generateResult()">
+            </div>
+            
+            <!-- Variável de Análise -->
+            <div class="delimitador-box">
+                <h4>⚖️ Variável de Análise/Conflito</h4>
+                <select id="variavel-select" onchange="updateVariavel()">
+                    <option value="">Selecione a variável...</option>
+                </select>
+                <div id="opcoes-variavel" class="opcoes-especificas hidden">
+                    <label>Conflitos específicos do tema:</label>
+                    <div class="opcoes-grid" id="grid-opcoes-variavel"></div>
+                </div>
+                <textarea id="variavel-conflito" placeholder="Descreva o aspecto controverso específico..." style="margin-top: 0.5rem; min-height: 60px;" oninput="generateResult()"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULTADO E BUSCAS -->
+    <div class="ai-box hidden" id="ai-result-box">
+        <h4>✨ Problematização e Busca Inteligente</h4>
+        
+        <div class="section-title">Fórmula de Problematização</div>
+        <div class="formula-selector" id="formula-selector">
+            <div class="formula-chip active" data-formula="em-que-medida" onclick="setFormula('em-que-medida')">Em que medida...</div>
+            <div class="formula-chip" data-formula="como" onclick="setFormula('como')">Como...</div>
+            <div class="formula-chip" data-formula="qual-impacto" onclick="setFormula('qual-impacto')">Qual o impacto...</div>
+            <div class="formula-chip" data-formula="quais-condicoes" onclick="setFormula('quais-condicoes')">Quais as condições...</div>
+            <div class="formula-chip" data-formula="e-possivel" onclick="setFormula('e-possivel')">É possível...</div>
+            <div class="formula-chip" data-formula="de-que-modo" onclick="setFormula('de-que-modo')">De que modo...</div>
+            <div class="formula-chip" data-formula="qual-relevancia" onclick="setFormula('qual-relevancia')">Qual a relevância...</div>
+            <div class="formula-chip" data-formula="ate-que-ponto" onclick="setFormula('ate-que-ponto')">Até que ponto...</div>
+        </div>
+        
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Problema de Pesquisa Gerado:</div>
+        <div class="result-text" id="problema-gerado">Preencha os campos acima para gerar...</div>
+<div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Problema de Pesquisa Gerado (Esboço Bruto):</div>
+        <div class="result-text" id="problema-gerado">Preencha os campos acima para gerar...</div>
+        
+        <button id="btn-chatgpt" class="btn-chatgpt" onclick="gerarPromptRefinamento()" title="Copia o prompt estruturado e abre o ChatGPT">
+            🤖 Lapidar no ChatGPT (Copiar Prompt & Abrir)
+        </button>
+
+        <!-- SELETOR DE TERMOS PARA BUSCA -->
+        <div class="termos-seletor" id="termos-seletor-box">
+            <h5>🔍 Selecione 2-3 termos para as buscas:</h5>
+            <div class="termos-grid" id="termos-grid"></div>
+            <div class="termos-aviso">Selecione no máximo 3 termos. Clique para selecionar/deselecionar.</div>
+        </div>
+
+        <!-- Preview da busca -->
+        <div class="section-title">Preview da string de busca</div>
+        <div class="busca-preview" id="busca-preview">Aguardando seleção de termos...</div>
+
+        <!-- Toggle BDTD -->
+        <div class="toggle-container">
+            <label class="toggle-switch">
+                <input type="checkbox" id="bdtd-toggle" onchange="updateBDTDLabel()">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-label" id="bdtd-label"><strong>Busca BDTD:</strong> Modo Amplo (apenas subtema)</span>
+        </div>
+
+        <!-- Abas de formato Scholar -->
+        <div class="section-title">Formato da busca acadêmica</div>
+        <div class="format-tabs">
+            <div class="format-tab active" onclick="setScholarFormat('any')" id="tab-any">Qualquer formato</div>
+            <div class="format-tab" onclick="setScholarFormat('pdf')" id="tab-pdf">Apenas PDF</div>
+        </div>
+
+        <div class="section-title">Bases acadêmicas</div>
+        <div class="search-grid">
+            <button class="btn-scholar" onclick="executarBusca('scholar')" title="Google Scholar">
+                🎓 Google Scholar <span class="info-badge" id="scholar-badge">Qualquer</span>
+            </button>
+            <button class="btn-bdtd" onclick="executarBusca('bdtd')" title="BDTD - recomendado modo amplo">
+                📚 BDTD <span class="info-badge" id="bdtd-badge">Amplo</span>
+            </button>
+        </div>
+
+        <div class="section-title">Jurisprudência (TJSP e STJ apenas)</div>
+        <div class="tribunal-grid">
+            <button class="btn-tjsp" onclick="executarBusca('tjsp')" title="Tribunal de Justiça de São Paulo">
+                ⚖️ TJSP (Google Dork)
+            </button>
+            <button class="btn-stj" onclick="executarBusca('stj')" title="Superior Tribunal de Justiça">
+                ⚖️ STJ (Google Dork)
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dados estruturados por área com DELIMITADORES ESPECÍFICOS
+    const dadosAreas = {
+        Familia: {
+            subtemas: [
+                { nome: 'Casamento e Regime de Bens', voga: false },
+                { nome: 'União Estável', voga: false },
+                { nome: 'Filiação e Multiparentalidade', voga: true },
+                { nome: 'Guarda e Convivência', voga: true },
+                { nome: 'Alimentos', voga: false },
+                { nome: 'Divórcio e Partilha', voga: false },
+                { nome: 'Alienação Parental', voga: true },
+                { nome: 'Bem de Família', voga: false },
+                { nome: 'Violência Doméstica', voga: true },
+                { nome: 'Abandono Afetivo', voga: true },
+                { nome: 'Direito Digital e Família', voga: true },
+                { nome: 'Planejamento Patrimonial', voga: true }
+            ],
+            subcategorias: {
+                'Casamento e Regime de Bens': [
+                    { titulo: 'Reforma CC 2025 e Separação +70 anos', desc: 'Tema 1.236 STF (2024): fim da separação obrigatória; PL 4/2025: compensação por economia doméstica', voga: true },
+                    { titulo: 'Regimes de Bens e Proteção da Mulher', desc: 'Divisão desigual na separação convencional; justiça de gênero no direito patrimonial', voga: true },
+                    { titulo: 'Pactos Antenupciais e Pós-Nupciais', desc: 'Alteração de regime no curso do casamento (PL 4/2025); autonomia privada', voga: true },
+                    { titulo: 'Casamento e Economia do Cuidado', desc: 'Valorização do trabalho doméstico; desigualdades de gênero na partilha', voga: false }
+                ],
+                'União Estável': [
+                    { titulo: 'Dissolução Post Mortem', desc: 'PL 4/2025: possibilidade de divórcio após falecimento do cônjuge; herança digital', voga: true },
+                    { titulo: 'Reconhecimento e Provas', desc: 'Documento público vs. fato; presunção de união estável', voga: false },
+                    { titulo: 'Partilha e Direitos Patrimoniais', desc: 'Aplicação do art. 1.725 CC; direito à meação; holding familiar', voga: false },
+                    { titulo: 'União Homoafetiva e Regime de Bens', desc: 'Equiparação legal; pactos; PL 4/2025 moderniza linguagem', voga: true }
+                ],
+                'Filiação e Multiparentalidade': [
+                    { titulo: 'Filiação Socioafetiva', desc: 'Tema 622 STF: dupla paternidade; avós socioafetivos; multiparentalidade', voga: true },
+                    { titulo: 'Reprodução Assistida Post Mortem', desc: 'PL 4/2025: filhos gerados após morte; herdeiros necessários; embriões', voga: true },
+                    { titulo: 'Três Pais/Mães (Multiparentalidade)', desc: 'Reconhecimento legal; Tema 622 STF; famílias recompostas', voga: true },
+                    { titulo: 'Investigação de Paternidade e DNA', desc: 'Art. 467 CPC; exames genéticos; prescrição; direito à identidade', voga: false }
+                ],
+                'Guarda e Convivência': [
+                    { titulo: 'Plano de Coparentalidade', desc: 'Instrumento preventivo; Lei 14.826/2024 (Parentalidade Positiva); melhor interesse', voga: true },
+                    { titulo: 'Guarda Compartilhada e Alienação', desc: 'Alienação parental como fator inibidor; supervisão de visitas', voga: true },
+                    { titulo: 'Direito de Convivência dos Avós', desc: 'Acesso aos netos; guarda dos netos; direito fundamental', voga: false },
+                    { titulo: 'Guarda de Pets', desc: 'Animais como filhos; partilha de animais; bem-estar animal', voga: false }
+                ],
+                'Alimentos': [
+                    { titulo: 'Atualização Monetária (Lei 14.903/2024)', desc: 'IPCA vs. SELIC; perdas e danos pela mora; execução de alimentos', voga: true },
+                    { titulo: 'Medidas Atípicas de Cobrança', desc: 'Tema 1.137 STJ (2025): retenção CNH, bloqueio redes sociais; proporcionalidade', voga: true },
+                    { titulo: 'Alimentos entre Cônjuges', desc: 'Dever de assistência; pensão compensatória; Reforma CC 2025', voga: false },
+                    { titulo: 'Alimentos e o Exterior', desc: 'Execução internacional; convenções; bens no exterior', voga: false }
+                ],
+                'Divórcio e Partilha': [
+                    { titulo: 'Partilha de Cotas Empresariais', desc: 'Holding familiar; valuation; societário e família; ITCMD', voga: true },
+                    { titulo: 'Partilha Extrajudicial Ampliada', desc: 'Res. CNJ 571/2024: menores e testamentos; desjudicialização', voga: true },
+                    { titulo: 'Partilha de Bens Digitais', desc: 'Criptomoedas, NFTs, redes sociais monetizadas; herança digital', voga: true },
+                    { titulo: 'Dissolução e ITCMD (EC 132/2023)', desc: 'Reforma tributária; progressividade; doações em vida', voga: true }
+                ],
+                'Alienação Parental': [
+                    { titulo: 'Lei 12.318/2010 em Revisão', desc: 'Debates sobre revogação; Lei 15.240/2025; abandono afetivo', voga: true },
+                    { titulo: 'Alienação e Violência Doméstica', desc: 'Alegação falsa em contexto de violência; Lei Maria da Penha', voga: true },
+                    { titulo: 'Instrumentos de Combate', desc: 'Intervenção psicológica; mudança de guarda; terapia familiar', voga: false },
+                    { titulo: 'Prova da Alienação', desc: 'Perícia psicológica; avaliação do Sistema de Justiça', voga: false }
+                ],
+                'Bem de Família': [
+                    { titulo: 'Bem de Família e Alienação Fiduciária', desc: 'Proteção vs. garantia; imóvel financiado; STJ', voga: false },
+                    { titulo: 'Bem de Família do Empresário', desc: 'Exceção art. 1.711 CC; proteção patrimonial; holding', voga: false },
+                    { titulo: 'Constituição e Impenhorabilidade', desc: 'Requisitos; ação de impugnação; direito real de habitação', voga: false }
+                ],
+                'Violência Doméstica': [
+                    { titulo: 'Lei 14.857/2024 e Sigilo', desc: 'Sigilo do nome da vítima; proteção de dados; feminicídio', voga: true },
+                    { titulo: 'Violência e Guarda dos Filhos', desc: 'Risco à criança; supervisão das visitas; alienação parental', voga: true },
+                    { titulo: 'Protocolos CNJ e Perspectiva de Gênero', desc: 'Uniformização de práticas; estatísticas; medidas protetivas', voga: true },
+                    { titulo: 'Feminicídio e Estatísticas', desc: 'Aumento de casos; violência obstétrica; accountability', voga: true }
+                ],
+                'Abandono Afetivo': [
+                    { titulo: 'Lei 15.240/2025', desc: 'Regulamentação; indenização; ato ilícito civil; deserdação', voga: true },
+                    { titulo: 'Responsabilidade Civil', desc: 'Dano moral; prova do abandono; prescrição; parentalidade', voga: true },
+                    { titulo: 'Abandono e Sucessões', desc: 'Deserdação por abandono afetivo; PL 4/2025; herdeiro necessário', voga: true },
+                    { titulo: 'Dever de Assistência Afetiva', desc: 'Obrigações parentais; afeto como direito; ECA', voga: true }
+                ],
+                'Direito Digital e Família': [
+                    { titulo: 'ECA Digital e Proteção Online', desc: 'PL tramitação; responsabilidade de plataformas; grooming', voga: true },
+                    { titulo: 'Inteligência Artificial e Família', desc: 'Uso na advocacia; decisões automatizadas; ética', voga: true },
+                    { titulo: 'Direito à Imagem das Crianças', desc: 'Sharenting; exposição parental; LGPD; proteção de dados', voga: true },
+                    { titulo: 'Provas Digitais em Ações Familiares', desc: 'WhatsApp, redes sociais; validade processual; print', voga: false }
+                ],
+                'Planejamento Patrimonial': [
+                    { titulo: 'Holding Familiar e Sucessão', desc: 'Planejamento societário; proteção patrimonial; ITCMD', voga: true },
+                    { titulo: 'Doações em Vida e Tributação', desc: 'ITCMD progressivo (EC 132/2023); doações imobiliárias; prazos', voga: true },
+                    { titulo: 'Testamento e Herança Digital', desc: 'Testamento digital (PL 4/2025); bens digitais; inventariante digital', voga: true },
+                    { titulo: 'Pactos Sucessórios', desc: 'Validade; limites; autonomia privada; PL 4/2025', voga: false }
+                ]
+            },
+            // DELIMITADORES ESPECÍFICOS PARA DIREITO DE FAMÍLIA
+            delimitadores: {
+                'Casamento e Regime de Bens': {
+                    espacial: [
+                        { label: 'STF - Tema 1.236', value: 'STF - Tema 1.236 (Separação +70 anos)', voga: true },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'STJ - 4ª Seção', value: 'STJ - 4ª Seção (Direito de Família)', voga: false },
+                        { label: 'Comissão de Juristas Senado', value: 'Comissão de Juristas do Senado (PL 4/2025)', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'Lei 15.240/2025 (Abandono Afetivo)', value: 'Lei 15.240/2025', voga: true },
+                        { label: 'Tema 1.236 STF (2024)', value: 'Tema 1.236 STF (2024)', voga: true },
+                        { label: 'PL 4/2025 (Reforma CC)', value: 'PL 4/2025 - Reforma Código Civil', voga: true },
+                        { label: 'Lei 14.903/2024 (Alimentos)', value: 'Lei 14.903/2024', voga: true },
+                        { label: 'CC 2002', value: 'Código Civil 2002 (vigente)', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Princípio da Afetividade', value: 'princípio da afetividade', voga: true },
+                        { label: 'Autonomia da Vontade', value: 'autonomia da vontade', voga: true },
+                        { label: 'Dignidade da Pessoa Humana', value: 'dignidade da pessoa humana', voga: true },
+                        { label: 'Economia do Cuidado', value: 'economia do cuidado', voga: true },
+                        { label: 'Justiça de Gênero', value: 'justiça de gênero', voga: true },
+                        { label: 'Proteção do Idoso', value: 'proteção do idoso', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Compensação por Economia Doméstica', value: 'a compensação financeira por economia doméstica', voga: true },
+                        { label: 'Alteração de Regime no Casamento', value: 'a alteração de regime de bens no curso do casamento', voga: true },
+                        { label: 'Separação de Bens +70 anos', value: 'a separação obrigatória de bens após 70 anos', voga: true },
+                        { label: 'Pactos Pós-Nupciais', value: 'os pactos pós-nupciais e sua validade', voga: true },
+                        { label: 'Partilha Desigual', value: 'a partilha desigual por contribuição diferenciada', voga: false }
+                    ]
+                },
+                'União Estável': {
+                    espacial: [
+                        { label: 'STF', value: 'STF', voga: false },
+                        { label: 'STJ - 4ª Seção', value: 'STJ - 4ª Seção', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'Comissão de Juristas', value: 'Comissão de Juristas (PL 4/2025)', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'PL 4/2025 (Dissolução Post Mortem)', value: 'PL 4/2025 - dissolução post mortem', voga: true },
+                        { label: 'ADPF 132 (Reconhecimento)', value: 'ADPF 132 STF', voga: false },
+                        { label: 'Lei 10.406/2002', value: 'CC 2002', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Princípio da Afetividade', value: 'princípio da afetividade', voga: true },
+                        { label: 'Autonomia Privada', value: 'autonomia privada', voga: true },
+                        { label: 'Função Social da Família', value: 'função social da família', voga: false }
+                    ],
+                    variavel: [
+                        { label: 'Dissolução Após Falecimento', value: 'a dissolução da união estável após o falecimento', voga: true },
+                        { label: 'Prova da União Estável', value: 'a prova documental vs. prova do fato', voga: false },
+                        { label: 'Direito à Meação', value: 'o direito à meação do companheiro', voga: false }
+                    ]
+                },
+                'Filiação e Multiparentalidade': {
+                    espacial: [
+                        { label: 'STF - Tema 622', value: 'STF - Tema 622 (Filiação Socioafetiva)', voga: true },
+                        { label: 'STJ - 4ª Seção', value: 'STJ - 4ª Seção', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'Tema 622 STF (Socioafetividade)', value: 'Tema 622 STF', voga: true },
+                        { label: 'PL 4/2025 (Reprodução Assistida)', value: 'PL 4/2025 - reprodução assistida', voga: true },
+                        { label: 'Lei 8.069/90 (ECA)', value: 'ECA', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Princípio da Afetividade', value: 'princípio da afetividade', voga: true },
+                        { label: 'Multiparentalidade', value: 'multiparentalidade', voga: true },
+                        { label: 'Direito à Identidade', value: 'direito à identidade', voga: true },
+                        { label: 'Bioética', value: 'bioética', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Dupla Paternidade/Maternidade', value: 'o reconhecimento de dupla paternidade/maternidade', voga: true },
+                        { label: 'Filiação Post Mortem', value: 'a filiação por reprodução assistida post mortem', voga: true },
+                        { label: 'Três Pais/Mães', value: 'o reconhecimento jurídico de três pais ou mães', voga: true },
+                        { label: 'Avós Socioafetivos', value: 'o reconhecimento de avós socioafetivos', voga: true }
+                    ]
+                },
+                'Guarda e Convivência': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'CNJ', value: 'CNJ', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'Lei 14.826/2024 (Parentalidade Positiva)', value: 'Lei 14.826/2024', voga: true },
+                        { label: 'Res. CNJ 140/2011', value: 'Resolução CNJ 140/2011', voga: false },
+                        { label: 'Lei 13.058/2014', value: 'Lei 13.058/2014', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Interesse Superior da Criança', value: 'interesse superior da criança', voga: true },
+                        { label: 'Coparentalidade', value: 'coparentalidade', voga: true },
+                        { label: 'Parentalidade Positiva', value: 'parentalidade positiva', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Plano de Coparentalidade', value: 'o plano de exercício da coparentalidade', voga: true },
+                        { label: 'Alienação Parental', value: 'a alienação parental como fator inibidor', voga: true },
+                        { label: 'Supervisão de Visitas', value: 'a necessidade de supervisão das visitas', voga: false }
+                    ]
+                },
+                'Alimentos': {
+                    espacial: [
+                        { label: 'STJ - Tema 1.137', value: 'STJ - Tema 1.137 (Medidas Atípicas)', voga: true },
+                        { label: 'STJ - 4ª Seção', value: 'STJ - 4ª Seção', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'Lei 14.903/2024 (Atualização Monetária)', value: 'Lei 14.903/2024', voga: true },
+                        { label: 'Tema 1.137 STJ (2025)', value: 'Tema 1.137 STJ', voga: true },
+                        { label: 'Lei 5.478/68', value: 'Lei de Alimentos', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Princípio da Proporcionalidade', value: 'princípio da proporcionalidade', voga: true },
+                        { label: 'Solidariedade Familiar', value: 'solidariedade familiar', voga: false },
+                        { label: 'Efetividade da Execução', value: 'efetividade da execução', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Atualização pelo IPCA', value: 'a atualização monetária pelo IPCA', voga: true },
+                        { label: 'Medidas Atípicas', value: 'as medidas atípicas de cobrança (CNH, redes sociais)', voga: true },
+                        { label: 'Perdas e Danos pela Mora', value: 'as perdas e danos pela mora no pagamento', voga: true }
+                    ]
+                },
+                'Divórcio e Partilha': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'CNJ - Res. 571/2024', value: 'CNJ - Resolução 571/2024', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'Res. CNJ 571/2024 (Extrajudicial)', value: 'Resolução CNJ 571/2024', voga: true },
+                        { label: 'EC 132/2023 (ITCMD)', value: 'EC 132/2023 - Reforma Tributária', voga: true },
+                        { label: 'PL 4/2025', value: 'PL 4/2025', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Autonomia Privada', value: 'autonomia privada', voga: true },
+                        { label: 'Desjudicialização', value: 'desjudicialização', voga: true },
+                        { label: 'Proteção Patrimonial', value: 'proteção patrimonial', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Partilha de Cotas Empresariais', value: 'a partilha de cotas empresariais em holding familiar', voga: true },
+                        { label: 'Bens Digitais', value: 'a partilha de criptomoedas e bens digitais', voga: true },
+                        { label: 'ITCMD Progressivo', value: 'o impacto do ITCMD progressivo na partilha', voga: true }
+                    ]
+                },
+                'Alienação Parental': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'CNJ', value: 'CNJ', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'Lei 15.240/2025', value: 'Lei 15.240/2025', voga: true },
+                        { label: 'Lei 12.318/2010', value: 'Lei 12.318/2010', voga: false },
+                        { label: 'Lei 11.340/2006', value: 'Lei Maria da Penha', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Interesse Superior da Criança', value: 'interesse superior da criança', voga: true },
+                        { label: 'Parentalidade Responsável', value: 'parentalidade responsável', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Alegação Falsa em Contexto de Violência', value: 'a alegação falsa de alienação em contexto de violência', voga: true },
+                        { label: 'Revisão da Lei 12.318/2010', value: 'a necessidade de revisão da Lei 12.318/2010', voga: true }
+                    ]
+                },
+                'Bem de Família': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'CC 2002', value: 'CC 2002', voga: false },
+                        { label: 'Lei 8.009/90', value: 'Lei 8.009/1990', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Proteção Patrimonial', value: 'proteção patrimonial', voga: true },
+                        { label: 'Direito Real de Habitação', value: 'direito real de habitação', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Alienação Fiduciária', value: 'o conflito com alienação fiduciária', voga: false },
+                        { label: 'Empresário e Bem de Família', value: 'a exceção do empresário', voga: false }
+                    ]
+                },
+                'Violência Doméstica': {
+                    espacial: [
+                        { label: 'STF', value: 'STF', voga: false },
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'CNJ', value: 'CNJ', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'Lei 14.857/2024 (Sigilo)', value: 'Lei 14.857/2024', voga: true },
+                        { label: 'Lei 11.340/2006', value: 'Lei Maria da Penha', voga: false },
+                        { label: 'Protocolos CNJ 2024', value: 'Protocolos CNJ 2024', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Perspectiva de Gênero', value: 'perspectiva de gênero', voga: true },
+                        { label: 'Proteção Integral', value: 'proteção integral', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Sigilo do Nome da Vítima', value: 'o sigilo do nome da vítima (Lei 14.857/2024)', voga: true },
+                        { label: 'Violência e Guarda', value: 'o impacto da violência na guarda dos filhos', voga: true }
+                    ]
+                },
+                'Abandono Afetivo': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ - REsp 1.159.242/SP', voga: true },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'STF', value: 'STF', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'Lei 15.240/2025', value: 'Lei 15.240/2025', voga: true },
+                        { label: 'PL 4/2025 (Deserdação)', value: 'PL 4/2025 - deserdação', voga: true },
+                        { label: 'REsp 1.159.242/SP', value: 'REsp 1.159.242/SP', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Princípio da Afetividade', value: 'princípio da afetividade', voga: true },
+                        { label: 'Responsabilidade Civil', value: 'responsabilidade civil', voga: true },
+                        { label: 'Dever de Assistência Afetiva', value: 'dever de assistência afetiva', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Indenização por Dano Moral', value: 'a indenização por dano moral por abandono afetivo', voga: true },
+                        { label: 'Deserdação por Abandono', value: 'a deserdação por abandono afetivo', voga: true },
+                        { label: 'Prova do Abandono', value: 'a prova do abandono afetivo', voga: true }
+                    ]
+                },
+                'Direito Digital e Família': {
+                    espacial: [
+                        { label: 'STF', value: 'STF', voga: false },
+                        { label: 'ANPD', value: 'ANPD', voga: true },
+                        { label: 'Comissões Senado', value: 'Comissões Senado', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'LGPD (Lei 13.709/2018)', value: 'LGPD', voga: true },
+                        { label: 'PL ECA Digital', value: 'PL ECA Digital (em tramitação)', voga: true },
+                        { label: 'PL 2.338/2023 (IA)', value: 'PL 2.338/2023', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Proteção de Dados', value: 'proteção de dados pessoais', voga: true },
+                        { label: 'Direito Digital', value: 'direito digital', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Sharenting', value: 'o sharenting e exposição de crianças', voga: true },
+                        { label: 'Provas Digitais', value: 'a validade de provas digitais em ações familiares', voga: true },
+                        { label: 'IA na Advocacia Familiar', value: 'o uso de IA na advocacia familiar', voga: true }
+                    ]
+                },
+                'Planejamento Patrimonial': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false },
+                        { label: 'Senado', value: 'Senado Federal', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'EC 132/2023 (ITCMD)', value: 'EC 132/2023', voga: true },
+                        { label: 'LC 227/2026', value: 'LC 227/2026', voga: true },
+                        { label: 'PL 4/2025', value: 'PL 4/2025', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Autonomia Privada', value: 'autonomia privada', voga: true },
+                        { label: 'Planejamento Sucessório', value: 'planejamento sucessório', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'ITCMD Progressivo', value: 'o impacto do ITCMD progressivo', voga: true },
+                        { label: 'Doações em Vida', value: 'as doações em vida como planejamento', voga: true },
+                        { label: 'Holding Familiar', value: 'a holding familiar como instrumento', voga: true }
+                    ]
+                }
+            }
+        },
+        Sucessoes: {
+            subtemas: [
+                { nome: 'Abertura e Saisine', voga: false },
+                { nome: 'Vocação Hereditária', voga: true },
+                { nome: 'Sucessão do Cônjuge/Companheiro', voga: true },
+                { nome: 'Indignidade e Deserdação', voga: true },
+                { nome: 'Sucessão Testamentária', voga: false },
+                { nome: 'Herança Digital', voga: true },
+                { nome: 'Inventário e Partilha', voga: true },
+                { nome: 'Planejamento Sucessório', voga: true },
+                { nome: 'Sucessão e Tributação', voga: true },
+                { nome: 'Sucessão de Empresas Familiares', voga: true }
+            ],
+            subcategorias: {
+                'Abertura e Saisine': [
+                    { titulo: 'Comprovação do Óbito', desc: 'Presunção de morte; desastres; COVID-19; prova do falecimento', voga: false },
+                    { titulo: 'Saisine e Transmissão', desc: 'Teoria da saisine; aceitação da herança; direito de representação', voga: false },
+                    { titulo: 'Herança Jacente', desc: 'Administração pelo Estado; prazos; destinação dos bens', voga: false }
+                ],
+                'Vocação Hereditária': [
+                    { titulo: 'Reforma CC 2025 e Ordem de Herdeiros', desc: 'PL 4/2025: exclusão do cônjuge com descendentes; simplificação', voga: true },
+                    { titulo: 'Filhos Post Mortem', desc: 'Reprodução assistida; herdeiros necessários; embriões; PL 4/2025', voga: true },
+                    { titulo: 'Colaterais até 4º Grau', desc: 'Sobrinhos; tios; avós; vocação; representação', voga: false },
+                    { titulo: 'Representação e Transmissão', desc: 'Direito de representação; herança do falecido; grados', voga: false }
+                ],
+                'Sucessão do Cônjuge/Companheiro': [
+                    { titulo: 'Exclusão do Cônjuge como Herdeiro Necessário', desc: 'PL 4/2025: retirada do rol do art. 1.845; polêmica', voga: true },
+                    { titulo: 'Concorrência Sucessória', desc: 'Fim da concorrência com descendentes (PL 4/2025); meação', voga: true },
+                    { titulo: 'Direito Real de Habitação Ampliado', desc: 'PL 4/2025: proteção a outros herdeiros vulneráveis', voga: true },
+                    { titulo: 'Cônjuge em Separação de Bens', desc: 'Sem direito à herança? Debates atuais; compensação', voga: true }
+                ],
+                'Indignidade e Deserdação': [
+                    { titulo: 'Abandono Afetivo como Causa', desc: 'Lei 15.240/2025; PL 4/2025; deserdação; indignidade', voga: true },
+                    { titulo: 'Indignidade e Violência', desc: 'Crime contra o autor da herança; feminicídio; PL 4/2025', voga: true },
+                    { titulo: 'Perdão Judicial', desc: 'Reabilitação do herdeiro; efeitos; jurisprudência', voga: false },
+                    { titulo: 'Prova da Indignidade', desc: 'Ação de indignidade; ônus da prova; prescrição', voga: false }
+                ],
+                'Sucessão Testamentária': [
+                    { titulo: 'Testamento Digital', desc: 'PL 4/2025: forma eletrônica; assinatura digital; validade', voga: true },
+                    { titulo: 'Cláusulas de Inalienabilidade', desc: 'Fim da justificativa obrigatória (PL 4/2025); liberdade testadora', voga: true },
+                    { titulo: 'Legítima e Disponível', desc: 'Porção legítima; herdeiros necessários; PL 4/2025', voga: true },
+                    { titulo: 'Doações Inoficiosas e Colação', desc: 'Colação; valor nominal corrigido; abate da legítima', voga: false }
+                ],
+                'Herança Digital': [
+                    { titulo: 'REsp 2.124.424 STJ (2025)', desc: 'Inventariante digital; acesso a bens digitais; mensagens', voga: true },
+                    { titulo: 'Bens Digitais Patrimoniais', desc: 'Criptomoedas; NFTs; contas monetizadas; PL 4/2025', voga: true },
+                    { titulo: 'Privacidade Post Mortem', desc: 'Sigilo das comunicações; acesso pelos herdeiros; LGPD', voga: true },
+                    { titulo: 'PL Reforma CC - Art. 1.791-C', desc: 'Regulamentação proposta; plataformas digitais; obrigações', voga: true }
+                ],
+                'Inventário e Partilha': [
+                    { titulo: 'Inventário Extrajudicial Ampliado', desc: 'Res. CNJ 571/2024: menores; testamentos; sobrepartilha', voga: true },
+                    { titulo: 'Inventário Digital', desc: 'Processo eletrônico; videoconferência; assinatura digital', voga: true },
+                    { titulo: 'Partilha de Empresas', desc: 'Continuidade do negócio; valuation; conflitos entre herdeiros', voga: true },
+                    { titulo: 'Alienação para Pagamento de Tributos', desc: 'Venda de ativos do espólio; ITCMD; consenso', voga: true }
+                ],
+                'Planejamento Sucessório': [
+                    { titulo: 'Pactos Sucessórios entre Herdeiros', desc: 'PL 4/2025: validade; colação; autonomia privada', voga: true },
+                    { titulo: 'Doações com Reserva de Usufruto', desc: 'Planejamento tributário; ITCMD progressivo; prazos', voga: true },
+                    { titulo: 'Holding Familiar e Sucessão', desc: 'Proteção patrimonial; sucessão societária; governança', voga: true },
+                    { titulo: 'Diretivas Antecipadas de Curatela', desc: 'PL 4/2025: regulamentação; autonomia; incapacidade', voga: true }
+                ],
+                'Sucessão e Tributação': [
+                    { titulo: 'Reforma Tributária e ITCMD', desc: 'EC 132/2023; progressividade; LC 227/2026; alíquotas', voga: true },
+                    { titulo: 'Tema 1.214 STF', desc: 'ITCMD sobre previdência privada (VGBL/PGBL); inconstitucionalidade', voga: true },
+                    { titulo: 'ITCMD sobre Bens no Exterior', desc: 'EC 132/2023; competência; bitributação; planejamento', voga: true },
+                    { titulo: 'Tributação de Herança Digital', desc: 'Criptomoedas; NFTs; localização do bem; ITCMD', voga: true }
+                ],
+                'Sucessão de Empresas Familiares': [
+                    { titulo: 'Continuidade do Negócio Familiar', desc: 'Sucessão empresarial; governança corporativa; protocolo familiar', voga: true },
+                    { titulo: 'Conflitos entre Herdeiros e Sócios', desc: 'Exclusão de herdeiro; buy-sell agreements; valuation', voga: true },
+                    { titulo: 'Partilha de Cotas vs. Continuidade', desc: 'Direito de retirada; valuation; prejuízo à empresa', voga: true },
+                    { titulo: 'Responsabilidade Trabalhista do Espólio', desc: 'Passivo trabalhista; responsabilidade dos herdeiros', voga: false }
+                ]
+            },
+            // DELIMITADORES ESPECÍFICOS PARA DIREITO DAS SUCESSÕES
+            delimitadores: {
+                'Abertura e Saisine': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'CC 2002', value: 'CC 2002', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Teoria da Saisine', value: 'teoria da saisine', voga: false }
+                    ],
+                    variavel: [
+                        { label: 'Presunção de Morte', value: 'a presunção de morte em desastres', voga: false }
+                    ]
+                },
+                'Vocação Hereditária': {
+                    espacial: [
+                        { label: 'Senado (PL 4/2025)', value: 'Senado Federal - PL 4/2025', voga: true },
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'STF', value: 'STF', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'PL 4/2025 (Reforma)', value: 'PL 4/2025 - Reforma CC', voga: true },
+                        { label: 'CC 2002', value: 'CC 2002 (vigente)', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Autonomia da Vontade', value: 'autonomia da vontade', voga: true },
+                        { label: 'Proteção do Cônjuge', value: 'proteção do cônjuge', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Exclusão do Cônjuge', value: 'a exclusão do cônjuge na vocação hereditária', voga: true },
+                        { label: 'Filhos Post Mortem', value: 'a legitimidade de filhos post mortem', voga: true }
+                    ]
+                },
+                'Sucessão do Cônjuge/Companheiro': {
+                    espacial: [
+                        { label: 'Senado (PL 4/2025)', value: 'Senado Federal - PL 4/2025', voga: true },
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'STF', value: 'STF', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'PL 4/2025 (Herdeiro Necessário)', value: 'PL 4/2025 - herdeiro necessário', voga: true },
+                        { label: 'CC 2002', value: 'CC 2002', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Proteção do Cônjuge', value: 'proteção do cônjuge', voga: true },
+                        { label: 'Autonomia Privada', value: 'autonomia privada', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Herdeiro Necessário', value: 'a exclusão do cônjuge como herdeiro necessário', voga: true },
+                        { label: 'Concorrência Sucessória', value: 'o fim da concorrência com descendentes', voga: true },
+                        { label: 'Direito Real de Habitação', value: 'a ampliação do direito real de habitação', voga: true }
+                    ]
+                },
+                'Indignidade e Deserdação': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'STF', value: 'STF', voga: false },
+                        { label: 'Senado', value: 'Senado Federal', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'Lei 15.240/2025', value: 'Lei 15.240/2025', voga: true },
+                        { label: 'PL 4/2025', value: 'PL 4/2025', voga: true },
+                        { label: 'CC 2002', value: 'CC 2002', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Princípio da Afetividade', value: 'princípio da afetividade', voga: true },
+                        { label: 'Autonomia Testadora', value: 'autonomia testadora', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Abandono Afetivo', value: 'o abandono afetivo como causa de deserdação', voga: true },
+                        { label: 'Violência Doméstica', value: 'a violência doméstica como causa de indignidade', voga: true }
+                    ]
+                },
+                'Sucessão Testamentária': {
+                    espacial: [
+                        { label: 'Senado (PL 4/2025)', value: 'Senado Federal', voga: true },
+                        { label: 'STJ', value: 'STJ', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'PL 4/2025 (Testamento Digital)', value: 'PL 4/2025 - testamento digital', voga: true },
+                        { label: 'CC 2002', value: 'CC 2002', voga: false }
+                    ],
+                    teorico: [
+                        { label: 'Autonomia Testadora', value: 'autonomia testadora', voga: true },
+                        { label: 'Proteção da Legítima', value: 'proteção da legítima', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Testamento Digital', value: 'a validade do testamento digital', voga: true },
+                        { label: 'Cláusulas de Inalienabilidade', value: 'o fim da justificativa obrigatória', voga: true },
+                        { label: 'Pactos Sucessórios', value: 'a validade dos pactos sucessórios', voga: true }
+                    ]
+                },
+                'Herança Digital': {
+                    espacial: [
+                        { label: 'STJ - REsp 2.124.424', value: 'STJ - REsp 2.124.424/2025', voga: true },
+                        { label: 'Senado', value: 'Senado Federal', voga: true },
+                        { label: 'ANPD', value: 'ANPD', voga: true }
+                    ],
+                    temporal: [
+                        { label: 'REsp 2.124.424 STJ (2025)', value: 'REsp 2.124.424 STJ', voga: true },
+                        { label: 'PL 4/2025 (Art. 1.791-C)', value: 'PL 4/2025 - art. 1.791-C', voga: true },
+                        { label: 'LGPD (Lei 13.709/2018)', value: 'LGPD', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Privacidade Post Mortem', value: 'privacidade post mortem', voga: true },
+                        { label: 'Propriedade Digital', value: 'propriedade digital', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Inventariante Digital', value: 'a figura do inventariante digital', voga: true },
+                        { label: 'Acesso a Mensagens', value: 'o acesso a mensagens do falecido', voga: true },
+                        { label: 'Criptomoedas na Herança', value: 'a partilha de criptomoedas', voga: true }
+                    ]
+                },
+                'Inventário e Partilha': {
+                    espacial: [
+                        { label: 'CNJ - Res. 571/2024', value: 'CNJ - Resolução 571/2024', voga: true },
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'Res. CNJ 571/2024', value: 'Resolução CNJ 571/2024', voga: true },
+                        { label: 'EC 132/2023', value: 'EC 132/2023', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Desjudicialização', value: 'desjudicialização', voga: true },
+                        { label: 'Eficiência Processual', value: 'eficiência processual', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Inventário Extrajudicial Ampliado', value: 'a ampliação do inventário extrajudicial', voga: true },
+                        { label: 'Partilha de Empresas', value: 'a partilha de empresas familiares', voga: true }
+                    ]
+                },
+                'Planejamento Sucessório': {
+                    espacial: [
+                        { label: 'Senado', value: 'Senado Federal', voga: true },
+                        { label: 'STJ', value: 'STJ', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'PL 4/2025', value: 'PL 4/2025', voga: true },
+                        { label: 'EC 132/2023', value: 'EC 132/2023', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Autonomia Privada', value: 'autonomia privada', voga: true },
+                        { label: 'Planejamento Patrimonial', value: 'planejamento patrimonial', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Pactos Sucessórios', value: 'os pactos sucessórios entre herdeiros', voga: true },
+                        { label: 'Doações com Usufruto', value: 'as doações com reserva de usufruto', voga: true }
+                    ]
+                },
+                'Sucessão e Tributação': {
+                    espacial: [
+                        { label: 'STF - Tema 1.214', value: 'STF - Tema 1.214', voga: true },
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'EC 132/2023', value: 'EC 132/2023', voga: true },
+                        { label: 'LC 227/2026', value: 'LC 227/2026', voga: true },
+                        { label: 'Tema 1.214 STF', value: 'Tema 1.214 STF', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Progressividade Tributária', value: 'progressividade tributária', voga: true },
+                        { label: 'Isonomia Tributária', value: 'isonomia tributária', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'ITCMD Progressivo', value: 'o ITCMD progressivo sobre grandes heranças', voga: true },
+                        { label: 'ITCMD sobre Previdência', value: 'o ITCMD sobre previdência privada (Tema 1.214)', voga: true },
+                        { label: 'ITCMD sobre Exterior', value: 'o ITCMD sobre bens no exterior', voga: true }
+                    ]
+                },
+                'Sucessão de Empresas Familiares': {
+                    espacial: [
+                        { label: 'STJ', value: 'STJ', voga: false },
+                        { label: 'TJSP', value: 'TJSP', voga: false }
+                    ],
+                    temporal: [
+                        { label: 'EC 132/2023', value: 'EC 132/2023', voga: true },
+                        { label: 'PL 4/2025', value: 'PL 4/2025', voga: true }
+                    ],
+                    teorico: [
+                        { label: 'Continuidade Empresarial', value: 'continuidade empresarial', voga: true },
+                        { label: 'Governança Corporativa', value: 'governança corporativa', voga: true }
+                    ],
+                    variavel: [
+                        { label: 'Conflitos entre Herdeiros', value: 'os conflitos entre herdeiros e sócios', voga: true },
+                        { label: 'Valuation na Partilha', value: 'o valuation na partilha de cotas', voga: true }
+                    ]
+                }
+            }
+        }
+    };
+
+    // Fórmulas de problematização
+    const formulas = {
+        'em-que-medida': (tema, variavel, teorico, espacial, temporal) => {
+            if (variavel) return `Em que medida ${variavel} influencia os efeitos jurídicos de ${tema}`;
+            return `Em que medida a regulamentação sobre ${tema}`;
+        },
+        'como': (tema, variavel, teorico, espacial, temporal) => {
+            if (variavel) return `Como ${variavel} afeta a aplicação de ${tema}`;
+            return `Como se dá a efetivação de ${tema}`;
+        },
+        'qual-impacto': (tema, variavel, teorico, espacial, temporal) => {
+            if (variavel) return `Qual o impacto de ${variavel} sobre ${tema}`;
+            return `Qual o impacto da nova regulamentação sobre ${tema}`;
+        },
+        'quais-condicoes': (tema, variavel, teorico, espacial, temporal) => {
+            return `Quais as condições jurídicas para ${variavel || 'a efetivação de ' + tema}`;
+        },
+        'e-possivel': (tema, variavel, teorico, espacial, temporal) => {
+            return `É possível reconhecer ${variavel || 'direitos emergentes'} no âmbito de ${tema}`;
+        },
+        'de-que-modo': (tema, variavel, teorico, espacial, temporal) => {
+            return `De que modo ${tema} pode ser compatibilizado com ${variavel || 'os direitos fundamentais'}`;
+        },
+        'qual-relevancia': (tema, variavel, teorico, espacial, temporal) => {
+            return `Qual a relevância ${teorico ? 'de ' + teorico : 'do princípio da dignidade'} para ${tema}`;
+        },
+        'ate-que-ponto': (tema, variavel, teorico, espacial, temporal) => {
+            return `Até que ponto é constitucional ${variavel || 'a limitação de direitos'} em ${tema}`;
+        }
+    };
+
+    let selecaoArea = '';
+    let selecaoSubtema = '';
+    let selecaoSubcategoria = '';
+    let formulaAtual = 'em-que-medida';
+    let scholarFormat = 'any';
+    let termosSelecionados = [];
+
+    // Inicialização
+    document.querySelectorAll('#area-grid .chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('#area-grid .chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            selecaoArea = this.dataset.value;
+            
+            const grid = document.getElementById('subtema-grid');
+            grid.innerHTML = '';
+            const dados = dadosAreas[selecaoArea];
+            
+            dados.subtemas.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'chip' + (item.voga ? ' voga' : '');
+                el.textContent = item.nome;
+                el.onclick = () => selecionarSubtema(item.nome);
+                grid.appendChild(el);
+            });
+            
+            document.getElementById('step-subtema').classList.remove('hidden');
+            document.getElementById('step-subcategorias').classList.add('hidden');
+            document.getElementById('step-delimitadores').classList.add('hidden');
+            document.getElementById('ai-result-box').classList.add('hidden');
+            selecaoSubtema = '';
+            selecaoSubcategoria = '';
+            termosSelecionados = [];
+        });
+    });
+
+    function selecionarSubtema(nome) {
+        document.querySelectorAll('#subtema-grid .chip').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        selecaoSubtema = nome;
+        
+        // Carregar subcategorias
+        const gridSub = document.getElementById('subcategoria-grid');
+        gridSub.innerHTML = '';
+        const subcategorias = dadosAreas[selecaoArea].subcategorias[nome] || [];
+        
+        subcategorias.forEach((sub, index) => {
+            const card = document.createElement('div');
+            card.className = 'subcategoria-card' + (sub.voga ? ' active' : '');
+            card.innerHTML = `
+                <h5>${sub.titulo}</h5>
+                <p>${sub.desc}</p>
+                ${sub.voga ? '<span class="tag">Em alta 2026</span>' : ''}
+            `;
+            card.onclick = () => selecionarSubcategoria(sub.titulo, card);
+            gridSub.appendChild(card);
+        });
+        
+        document.getElementById('step-subcategorias').classList.remove('hidden');
+        document.getElementById('step-delimitadores').classList.remove('hidden');
+        document.getElementById('ai-result-box').classList.remove('hidden');
+        
+        // Carregar delimitadores específicos do tema
+        carregarDelimitadoresEspecificos(nome);
+        
+        // Pré-preenche variável de conflito com a subcategoria se houver apenas uma marcada como voga
+        const vogas = subcategorias.filter(s => s.voga);
+        if (vogas.length > 0) {
+            document.getElementById('variavel-conflito').value = vogas[0].titulo;
+        }
+        
+        generateResult();
+    }
+
+    function carregarDelimitadoresEspecificos(subtema) {
+        const delimitadores = dadosAreas[selecaoArea].delimitadores[subtema];
+        
+        if (!delimitadores) return;
+        
+        // Âmbito Espacial
+        const selectEspacial = document.getElementById('delimitador-espacial-select');
+        selectEspacial.innerHTML = '<option value="">Selecione o âmbito...</option>';
+        delimitadores.espacial.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op.value;
+            option.textContent = op.label + (op.voga ? ' 🔥' : '');
+            selectEspacial.appendChild(option);
+        });
+        
+        // Opções rápidas espacial
+        const gridEspacial = document.getElementById('grid-opcoes-espacial');
+        gridEspacial.innerHTML = '';
+        delimitadores.espacial.filter(o => o.voga).forEach(op => {
+            const chip = document.createElement('div');
+            chip.className = 'opcao-chip';
+            chip.textContent = op.label;
+            chip.onclick = () => {
+                document.getElementById('delimitador-espacial').value = op.value;
+                generateResult();
+            };
+            gridEspacial.appendChild(chip);
+        });
+        document.getElementById('opcoes-espacial').classList.toggle('hidden', gridEspacial.children.length === 0);
+        
+        // Marco Temporal
+        const selectTemporal = document.getElementById('delimitador-temporal-select');
+        selectTemporal.innerHTML = '<option value="">Selecione o marco...</option>';
+        delimitadores.temporal.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op.value;
+            option.textContent = op.label + (op.voga ? ' 🔥' : '');
+            selectTemporal.appendChild(option);
+        });
+        
+        const gridTemporal = document.getElementById('grid-opcoes-temporal');
+        gridTemporal.innerHTML = '';
+        delimitadores.temporal.filter(o => o.voga).forEach(op => {
+            const chip = document.createElement('div');
+            chip.className = 'opcao-chip';
+            chip.textContent = op.label;
+            chip.onclick = () => {
+                document.getElementById('delimitador-temporal').value = op.value;
+                generateResult();
+            };
+            gridTemporal.appendChild(chip);
+        });
+        document.getElementById('opcoes-temporal').classList.toggle('hidden', gridTemporal.children.length === 0);
+        
+        // Fundamentação Teórica
+        const selectTeorico = document.getElementById('delimitador-teorico-select');
+        selectTeorico.innerHTML = '<option value="">Selecione a abordagem...</option>';
+        delimitadores.teorico.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op.value;
+            option.textContent = op.label + (op.voga ? ' 🔥' : '');
+            selectTeorico.appendChild(option);
+        });
+        
+        const gridTeorico = document.getElementById('grid-opcoes-teorico');
+        gridTeorico.innerHTML = '';
+        delimitadores.teorico.filter(o => o.voga).forEach(op => {
+            const chip = document.createElement('div');
+            chip.className = 'opcao-chip';
+            chip.textContent = op.label;
+            chip.onclick = () => {
+                document.getElementById('delimitador-teorico').value = op.value;
+                generateResult();
+            };
+            gridTeorico.appendChild(chip);
+        });
+        document.getElementById('opcoes-teorico').classList.toggle('hidden', gridTeorico.children.length === 0);
+        
+        // Variável de Análise
+        const selectVariavel = document.getElementById('variavel-select');
+        selectVariavel.innerHTML = '<option value="">Selecione a variável...</option>';
+        delimitadores.variavel.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op.value;
+            option.textContent = op.label + (op.voga ? ' 🔥' : '');
+            selectVariavel.appendChild(option);
+        });
+        
+        const gridVariavel = document.getElementById('grid-opcoes-variavel');
+        gridVariavel.innerHTML = '';
+        delimitadores.variavel.filter(o => o.voga).forEach(op => {
+            const chip = document.createElement('div');
+            chip.className = 'opcao-chip';
+            chip.textContent = op.label;
+            chip.onclick = () => {
+                document.getElementById('variavel-conflito').value = op.value;
+                generateResult();
+            };
+            gridVariavel.appendChild(chip);
+        });
+        document.getElementById('opcoes-variavel').classList.toggle('hidden', gridVariavel.children.length === 0);
+    }
+
+    function selecionarSubcategoria(titulo, elemento) {
+        document.querySelectorAll('.subcategoria-card').forEach(c => c.classList.remove('active'));
+        elemento.classList.add('active');
+        selecaoSubcategoria = titulo;
+        document.getElementById('variavel-conflito').value = titulo;
+        generateResult();
+    }
+
+    function setFormula(formula) {
+        formulaAtual = formula;
+        document.querySelectorAll('.formula-chip').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[data-formula="${formula}"]`).classList.add('active');
+        generateResult();
+    }
+
+    function extrairTermosPrincipais(texto) {
+        // Remove stop words e extrai termos significativos
+        const stopWords = ['o', 'a', 'os', 'as', 'um', 'uma', 'de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'por', 'para', 'com', 'sob', 'sobre', 'que', 'e', 'ou', 'como', 'qual', 'são', 'ser', 'ter', 'se', 'ja', 'mais', 'menos', 'tanto', 'tal', 'mesmo', 'outro', 'algum', 'nenhum', 'todo', 'muito', 'pouco', 'as', 'os', 'é', 'são', 'foi', 'foram', 'será', 'serão'];
+        
+        // Limpa o texto
+        let limpo = texto.toLowerCase()
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+        
+        let palavras = limpo.split(/\s+/);
+        
+        // Filtra stop words e palavras muito curtas
+        let termos = palavras.filter(p => p.length > 3 && !stopWords.includes(p));
+        
+        // Remove duplicatas mantendo ordem
+        return [...new Set(termos)];
+    }
+
+    function atualizarSeletorTermos(termos) {
+        const grid = document.getElementById('termos-grid');
+        grid.innerHTML = '';
+        
+        // Pega os primeiros 8 termos mais relevantes
+        const termosLimitados = termos.slice(0, 8);
+        
+        termosLimitados.forEach(termo => {
+            const chip = document.createElement('div');
+            chip.className = 'termo-chip';
+            chip.textContent = termo;
+            chip.onclick = () => toggleTermo(termo, chip);
+            grid.appendChild(chip);
+        });
+        
+        // Seleciona automaticamente os 2-3 primeiros termos mais relevantes
+        termosSelecionados = termosLimitados.slice(0, 3);
+        atualizarVisualSelecao();
+        atualizarPreviewBusca();
+    }
+
+    function toggleTermo(termo, elemento) {
+        if (termosSelecionados.includes(termo)) {
+            termosSelecionados = termosSelecionados.filter(t => t !== termo);
+        } else {
+            if (termosSelecionados.length >= 3) {
+                // Remove o primeiro selecionado para manter máximo de 3
+                termosSelecionados.shift();
+            }
+            termosSelecionados.push(termo);
+        }
+        atualizarVisualSelecao();
+        atualizarPreviewBusca();
+    }
+
+    function atualizarVisualSelecao() {
+        document.querySelectorAll('.termo-chip').forEach(chip => {
+            if (termosSelecionados.includes(chip.textContent)) {
+                chip.classList.add('selected');
+            } else {
+                chip.classList.remove('selected');
+            }
+        });
+    }
+
+    function atualizarPreviewBusca() {
+        const preview = document.getElementById('busca-preview');
+        if (termosSelecionados.length === 0) {
+            preview.textContent = 'Selecione pelo menos 2 termos...';
+            return;
+        }
+        
+        // Formata para busca com aspas
+        const termosFormatados = termosSelecionados.map(t => `"${t}"`).join(' ');
+        preview.textContent = termosFormatados;
+    }
+
+    function generateResult() {
+        if (!selecaoSubtema) return;
+
+        const espacial = document.getElementById('delimitador-espacial').value.trim();
+        const temporal = document.getElementById('delimitador-temporal').value.trim();
+        const teorico = document.getElementById('delimitador-teorico').value.trim();
+        const variavel = document.getElementById('variavel-conflito').value.trim();
+
+        // Constrói problema usando a fórmula selecionada
+        let problemaFinal = formulas[formulaAtual](selecaoSubtema, variavel, teorico, espacial, temporal);
+        
+        if (teorico && !problemaFinal.includes(teorico)) problemaFinal += ` sob a ótica ${teorico}`;
+        if (espacial) problemaFinal += ` em/no ${espacial}`;
+        if (temporal) problemaFinal += ` após ${temporal}`;
+        problemaFinal += "?";
+
+        document.getElementById('problema-gerado').textContent = problemaFinal.charAt(0).toUpperCase() + problemaFinal.slice(1);
+
+        // Extrai termos para busca
+        let textoParaExtrair = `${selecaoSubtema} ${selecaoSubcategoria} ${variavel} ${teorico} ${espacial} ${temporal}`;
+        let termos = extrairTermosPrincipais(textoParaExtrair);
+        
+        // Atualiza o seletor de termos
+        atualizarSeletorTermos(termos);
+    }
+
+    // Funções de atualização dos selects
+    function updateEspacial() {
+        const select = document.getElementById('delimitador-espacial-select');
+        const input = document.getElementById('delimitador-espacial');
+        if (select.value) {
+            input.value = select.value;
+        }
+        generateResult();
+    }
+
+    function updateTemporal() {
+        const select = document.getElementById('delimitador-temporal-select');
+        const input = document.getElementById('delimitador-temporal');
+        if (select.value) {
+            input.value = select.value;
+        }
+        generateResult();
+    }
+
+    function updateTeorico() {
+        const select = document.getElementById('delimitador-teorico-select');
+        const input = document.getElementById('delimitador-teorico');
+        if (select.value) {
+            input.value = select.value;
+        }
+        generateResult();
+    }
+
+    function updateVariavel() {
+        const select = document.getElementById('variavel-select');
+        const input = document.getElementById('variavel-conflito');
+        if (select.value) {
+            input.value = select.value;
+        }
+        generateResult();
+    }
+
+    function updateBDTDLabel() {
+        const toggle = document.getElementById('bdtd-toggle');
+        const label = document.getElementById('bdtd-label');
+        const badge = document.getElementById('bdtd-badge');
+        
+        if (toggle.checked) {
+            label.innerHTML = '<strong>Busca BDTD:</strong> Modo Específico (termos selecionados)';
+            badge.textContent = 'Específico';
+        } else {
+            label.innerHTML = '<strong>Busca BDTD:</strong> Modo Amplo (apenas subtema)';
+            badge.textContent = 'Amplo';
+        }
+    }
+
+    function setScholarFormat(format) {
+        scholarFormat = format;
+        document.querySelectorAll('.format-tab').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('tab-' + format).classList.add('active');
+        
+        const badge = document.getElementById('scholar-badge');
+        if (format === 'pdf') badge.textContent = 'PDF';
+        else badge.textContent = 'Qualquer';
+    }
+
+    function executarBusca(plataforma) {
+        if (!selecaoSubtema) return alert("Selecione um tema primeiro.");
+        
+        // Verifica se tem termos selecionados
+        if (termosSelecionados.length < 2) {
+            return alert("Selecione pelo menos 2 termos para a busca.");
+        }
+        
+        // Formata os termos selecionados com aspas
+        const termosBusca = termosSelecionados.map(t => `"${t}"`).join(' ');
+        
+        let url = "";
+
+        switch(plataforma) {
+            case 'scholar':
+                let fileTypeFilter = '';
+                if (scholarFormat === 'pdf') {
+                    fileTypeFilter = ' filetype:pdf';
+                }
+                // Usa apenas 2-3 termos principais entre aspas
+                url = `https://scholar.google.com.br/scholar?hl=pt-BR&q=${encodeURIComponent(termosBusca + fileTypeFilter)}`;
+                break;
+                
+            case 'bdtd':
+                const toggle = document.getElementById('bdtd-toggle');
+                let queryBdtd;
+                
+                if (toggle.checked) {
+                    // Modo específico: usa termos selecionados
+                    queryBdtd = termosBusca;
+                } else {
+                    // Modo amplo: usa apenas o subtema
+                    queryBdtd = `"${selecaoSubtema}"`;
+                }
+                
+                url = `https://bdtd.ibict.br/vufind/Search/Results?lookfor=${encodeURIComponent(queryBdtd)}&type=AllFields`;
+                break;
+                
+            case 'tjsp':
+                // Busca no TJSP usando Google Dork - inurl:esaj ext:pdf
+                const queryTjsp = `${termosBusca} inurl:esaj.tjsp.jus.br ext:pdf`;
+                url = `https://www.google.com.br/search?q=${encodeURIComponent(queryTjsp)}`;
+                break;
+                
+            case 'stj':
+                // Busca no STJ usando Google Dork - site:stj.jus.br
+                const queryStj = `${termosBusca} inurl:stj intext:relatoria ext:pdf`;
+                url = `https://www.google.com.br/search?q=${encodeURIComponent(queryStj)}`;
+                break;
+        }
+
+        window.open(url, '_blank');
+    }
+// --- FUNÇÃO PONTE PARA O CHATGPT ---
+    function gerarPromptRefinamento() {
+        const problemaBruto = document.getElementById('problema-gerado').textContent;
+        
+        if (!problemaBruto || problemaBruto === 'Preencha os campos acima para gerar...') {
+            alert('Por favor, gere o problema bruto primeiro preenchendo os campos do Laboratório.');
+            return;
+        }
+
+        // Prompt de Sistema rigoroso, embasado no manual da EPM
+        const promptTemplate = `Atuo na área jurídica e estou elaborando o projeto de pesquisa da minha monografia para a Escola Paulista da Magistratura (EPM) na área de Família e Sucessões. 
+
+Usei minha ferramenta de brainstorm metodológico e cheguei neste esboço bruto de ideia:
+"${problemaBruto}"
+
+Como você sabe, um trabalho de excelência exige um recorte cirúrgico. Atue como meu orientador metodológico rigoroso e, com base nesse esboço, me forneça EXATAMENTE:
+
+1. Três (3) opções de "Tema Delimitado" altamente refinadas. (Regra: O tema DEVE conter sinalizadores claros de Tempo, Espaço/Instituição e Conceito jurídico).
+2. Três (3) opções de "Problema de Pesquisa" correspondentes aos temas. (Regra: A pergunta não pode ser respondida de forma binária com "sim" ou "não". Deve ser complexa, começando com "Em que medida...", "Como...", "Qual o impacto...", etc.).
+3. Três (3) opções de "Objetivo Geral" para a sua melhor opção. (Regra: Sempre começando com verbo no infinitivo, ex: Analisar, Avaliar, Mapear, Compreender).
+
+Apresente a resposta de forma limpa, direta e formatada, pois usarei esses dados para preencher as Bases Imutáveis do meu software "Arquiteto de Projetos".`;
+
+        // Copia para a área de transferência
+        navigator.clipboard.writeText(promptTemplate).then(() => {
+            const btn = document.getElementById('btn-chatgpt');
+            const textoOriginal = btn.innerHTML;
+            
+            // Feedback visual
+            btn.innerHTML = '✅ Super-Prompt Copiado! Abrindo o ChatGPT...';
+            btn.style.backgroundColor = '#059669';
+            
+            // Abre o ChatGPT após 1.5 segundos para o usuário ler a mensagem
+            setTimeout(() => {
+                window.open('https://chatgpt.com/', '_blank');
+                btn.innerHTML = textoOriginal;
+                btn.style.backgroundColor = ''; // Restaura a cor do CSS
+            }, 1500);
+            
+        }).catch(err => {
+            console.error('Erro ao copiar: ', err);
+            alert('Não foi possível copiar o prompt automaticamente. Verifique as permissões do seu navegador.');
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diretrizes</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --accent: #2563eb;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-dark); margin: 0; padding: 20px; line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header { background: var(--primary); color: white; padding: 25px; border-radius: 12px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 2rem; }
+        h3 { margin: 5px 0 0 0; font-weight: 400; font-size: 1rem; color: #bfdbfe; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card-header h2 { margin: 0; font-size: 1.2rem; color: var(--primary); }
+        .icon { font-size: 1.5rem; }
+
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { position: relative; padding-left: 20px; margin-bottom: 12px; font-size: 0.95rem; color: #334155; }
+        li::before { content: "•"; position: absolute; left: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem; line-height: 1; }
+        
+        .highlight { font-weight: 600; color: var(--primary); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 5px; color: white;}
+        .bg-danger { background-color: var(--danger); }
+        .bg-success { background-color: var(--success); }
+        .bg-warning { background-color: var(--warning); }
+        .bg-purple { background-color: var(--purple); }
+
+        .table-mini { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        .table-mini th, .table-mini td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+        .table-mini th { color: var(--primary); font-weight: 600; }
+
+        .quote-box { background: var(--primary-light); border-left: 4px solid var(--accent); padding: 12px; border-radius: 4px; font-style: italic; font-size: 0.9rem; color: var(--primary); margin-top: 15px; }
+
+        @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Diretrizes EPM</h1>
+        <h3>Diretrizes Materiais e Formais para Redação (EPM)</h3>
+    </header>
+
+    <div class="dashboard-grid">
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📏</span>
+                <h2>A Régua (Métricas)</h2>
+            </div>
+            <ul>
+                <li><span class="highlight">Extensão Exigida:</span> Entre 60 e 100 laudas <span class="badge bg-danger">Mínimo Absoluto: 60</span></li>
+                <li><span class="highlight">Fonte:</span> Arial ou Times New Roman, 12pt</li>
+                <li><span class="highlight">Espaçamento:</span> 1,5 no corpo do texto; 1,0 para citações longas e notas de rodapé</li>
+                <li><span class="highlight">Margens:</span> 3cm (Superior/Esquerda) e 2cm (Inferior/Direita)</li>
+                <li><span class="highlight">Impressão:</span> Apenas frente (se o trabalho tiver menos de 120 páginas)</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📚</span>
+                <h2>Alicerce Teórico (Fontes)</h2>
+            </div>
+            <ul>
+                <li><span class="highlight">Doutrina Base:</span> Utilize de <span class="badge bg-purple">3 a 5 autores clássicos</span> como estruturantes da sua teoria</li>
+                <li><span class="highlight">Artigos Científicos:</span> Utilize um mínimo de <span class="badge bg-success">10 artigos científicos</span> de alta qualidade. Evite fundamentar a pesquisa exclusivamente em manuais de graduação.</li>
+                <li><span class="highlight">Hierarquia:</span> Priorize Fontes Primárias (Obras originais dos autores e Acórdãos na íntegra) sobre Fontes Secundárias (Artigos que comentam o que o autor disse).</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">✍️</span>
+                <h2>Tom de Voz e Proibições</h2>
+            </div>
+            <ul>
+                <li><span class="highlight">Proibido Achismos:</span> Jamais use "Eu acho" ou "Na minha opinião". Substitua por locuções impessoais como "Conforme demonstrado" ou "Segundo o autor X".</li>
+                <li><span class="highlight">Uso de IA:</span> O uso para redação final e geração de conteúdo intelectual é <span class="badge bg-danger">Proibido (Reprovação)</span>. A ferramenta deixa marcas de estilo que os orientadores detectam. Use IA apenas para revisão estrutural.</li>
+                <li><span class="highlight">Direto ao Ponto:</span> O tema verdadeiro deve ser enfrentado nas primeiras páginas. Evite passar 90 páginas num resgate histórico genérico.</li>
+                <li><span class="highlight">Notas de Rodapé:</span> Devem ser breves e referenciais. É proibido criar notas maiores que o texto da página.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📑</span>
+                <h2>Guia ABNT Rápido</h2>
+            </div>
+            <table class="table-mini">
+                <tr>
+                    <th>Tipo de Citação</th>
+                    <th>Regra Prática</th>
+                </tr>
+                <tr>
+                    <td>Direta Curta</td>
+                    <td>Até 3 linhas. Fica no texto, <b>com aspas</b>. Ex: (SILVA, 2024, p. 12).</td>
+                </tr>
+                <tr>
+                    <td>Direta Longa</td>
+                    <td>4+ linhas. Recuo de 4cm, fonte 10, espaçamento 1,0, <b>sem aspas</b>.</td>
+                </tr>
+                <tr>
+                    <td>Indireta</td>
+                    <td>Ideia com as suas palavras. Fica no texto, sem aspas. Ex: (SILVA, 2024).</td>
+                </tr>
+            </table>
+            
+            <h4 style="margin: 15px 0 5px 0; color: var(--primary); font-size: 0.9rem;">Expressões Latinas Comuns</h4>
+            <ul style="font-size: 0.85rem;">
+                <li><b>Idem:</b> Mesmo autor, obra diferente.</li>
+                <li><b>Ibidem:</b> Mesma obra, página diferente.</li>
+                <li><b>Op. cit.:</b> Obra citada anteriormente (intercalada).</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">🏛️</span>
+                <h2>O Jogo Institucional (EPM)</h2>
+            </div>
+            <ul>
+                <li><span class="highlight">Constância:</span> Não deixe para escrever no último mês. Abra arquivos separados por capítulo e vá "recheando-os" conforme faz os seus fichamentos.</li>
+                <li><span class="highlight">Relação com o Orientador:</span> Entregue <span class="badge bg-warning">resultados parciais</span>. Orientadores valorizam o processo. Não desapareça para surgir no final com a versão pronta faltando 3 dias para o prazo73].</li>
+                <li><span class="highlight">Diferença de Tom:</span> Uma monografia não é uma peça jurídica. O objetivo não é convencer (adversarial), mas sim instruir e demonstrar conhecimento de forma dialética e analítica.</li>
+            </ul>
+            <div class="quote-box">
+                "Escrever tem que ser uma atividade incorporada. Tem que ser o tempo todo, porque ela vai ser revista muitas vezes. Constância é a chave." - Profª Rosângela
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
